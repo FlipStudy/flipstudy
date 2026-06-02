@@ -48,7 +48,7 @@ The app picks a card and shows the correct answer alongside three plausible wron
 ### Match
 All terms and definitions are shown as tiles on screen. Tap a term, then tap its matching definition. Matched pairs disappear. Beat your best time!
 
-### AI Revision Assistant *(requires API key)*
+### AI Revision Assistant *(requires a Claude account, payment to Anthropic and API key)*
 A chat interface where an AI tutor knows exactly which cards are in the set and which ones you've mastered. Use the quick-action buttons to get started, or type anything freely.
 
 **Quick actions:**
@@ -68,10 +68,11 @@ The AI assistant is focused solely on the current card set and will not respond 
 ## Setting up the AI Revision Assistant
 
 1. Go to [console.anthropic.com](https://console.anthropic.com) and create a free account
-2. Generate an API key (takes about 2 minutes)
-3. In the app, go to **Settings → AI Revision Assistant**
-4. Paste your key and tap **Save**
-5. The AI mode button will now appear on every card set
+2. Add a payment method — it's pay as you go, not a subscription. The app uses Claude Sonnet which costs a fraction of a penny per message, so for heavy typical GCSE revision useage would likely amount to less than £1 a month. This is the only cost assocated with the app and is entirely dependant on usage and how much Anthropic charge.
+3. Generate an API key (takes about 2 minutes)
+4. In the app, go to **Settings → AI Revision Assistant**
+5. Paste your key and tap **Save**
+6. The AI mode button will now appear on every card set
 
 **Important notes:**
 - Your API key is stored only on your device — it is never sent anywhere other than Anthropic's servers to generate responses
