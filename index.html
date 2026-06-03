@@ -1856,9 +1856,14 @@ function renderQuizQ() {
   document.getElementById('quiz-content').innerHTML = `
     <div class="quiz-q-num">Question ${quizIndex + 1} of ${quizQuestions.length}</div>
     <div class="quiz-question">${esc(question)}</div>
-    <div class="quiz-options">
-      ${options.map(opt => `<button class="quiz-opt" onclick="selectQuizOpt(this, ${JSON.stringify(esc(opt))}, ${JSON.stringify(esc(correct))})">${esc(opt)}</button>`).join('')}
+    <div class="quiz-options" id="quiz-options-list">
+      ${options.map((opt, i) => `<button class="quiz-opt" data-index="${i}">${esc(opt)}</button>`).join('')}
     </div>`;
+
+  // Store options data for click handler
+  document.querySelectorAll('.quiz-opt').forEach((btn, i) => {
+    btn.addEventListener('click', () => selectQuizOpt(btn, options[i], correct));
+  });
 }
 
 function selectQuizOpt(btn, selected, correct) {
@@ -1866,7 +1871,7 @@ function selectQuizOpt(btn, selected, correct) {
   quizAnswered = true;
   const opts = document.querySelectorAll('.quiz-opt');
   opts.forEach(o => {
-    if (o.textContent === correct) o.classList.add('correct');
+    if (o.textContent === esc(correct) || o.textContent === correct) o.classList.add('correct');
   });
   if (selected === correct) { btn.classList.add('correct'); quizScore++; }
   else btn.classList.add('wrong');
