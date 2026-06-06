@@ -839,7 +839,7 @@
     <div class="settings-item" onclick="showChangelog()" style="cursor:pointer">
       <div>
         <div class="settings-item-label">FlipStudy</div>
-        <div class="settings-item-sub" id="version-label">Version 1.6 · Your personal revision app</div>
+        <div class="settings-item-sub" id="version-label">Version 1.7 · Your personal revision app</div>
       </div>
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--text3)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
     </div>
@@ -2038,6 +2038,10 @@ function renderSettings() {
   if (el) {
     el.textContent = `${streak.current} day${streak.current !== 1 ? 's' : ''} current · ${streak.best} day${streak.best !== 1 ? 's' : ''} best`;
   }
+  // Always show current version dynamically
+  const verLabel = document.getElementById('version-label');
+  if (verLabel) verLabel.textContent = `Version ${APP_VERSION} · Your personal revision app`;
+
   // Default year dropdown
   const yearEl = document.getElementById('default-year-select');
   if (yearEl) yearEl.value = settings.defaultYear || '';
@@ -2353,12 +2357,18 @@ let changelogData = null;
 
 async function fetchChangelog() {
   try {
-    const res = await fetch(CHANGELOG_URL + '?t=' + Date.now());
+    const res = await fetch(CHANGELOG_URL + '?t=' + Date.now(), {
+      method: 'GET',
+      headers: { 'Accept': 'application/json' },
+      cache: 'no-store'
+    });
     if (res.ok) {
       changelogData = await res.json();
       return changelogData;
     }
-  } catch(e) {}
+  } catch(e) {
+    console.warn('Changelog fetch failed:', e);
+  }
   return null;
 }
 
@@ -2393,17 +2403,18 @@ async function checkForUpdates() {
   const label = document.getElementById('check-update-label');
   const sub = document.getElementById('check-update-sub');
   if (label) label.textContent = 'Checking…';
+  if (sub) sub.textContent = 'Fetching latest version info…';
   const cl = await fetchChangelog();
   if (!cl) {
     if (label) label.textContent = 'Check for updates';
-    if (sub) sub.textContent = 'Could not connect — check your internet connection';
+    if (sub) sub.textContent = `Could not load changelog — try again later (v${APP_VERSION} installed)`;
+    showToast('Could not reach update server');
     return;
   }
   if (label) label.textContent = 'Check for updates';
   if (versionIsNewer(cl.latest, APP_VERSION)) {
-    if (sub) sub.textContent = `Version ${cl.latest} is available!`;
-    showToast(`Version ${cl.latest} available — reopen the app to update`);
-    // Trigger service worker to fetch new version
+    if (sub) sub.textContent = `Version ${cl.latest} is available — close and reopen the app to update`;
+    showToast(`Version ${cl.latest} available!`);
     if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
       navigator.serviceWorker.controller.postMessage({ type: 'SKIP_WAITING' });
     }
