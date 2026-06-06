@@ -677,6 +677,22 @@
   </div>
   <div class="content">
     <div class="section-label">Study preferences</div>
+    <div class="settings-item" style="flex-direction:column;align-items:stretch;gap:10px;cursor:default">
+      <div>
+        <div class="settings-item-label">Default school year</div>
+        <div class="settings-item-sub">Automatically applied when creating a new card set</div>
+      </div>
+      <select id="default-year-select" onchange="saveDefaultYear()" style="margin-bottom:0">
+        <option value="">Not set</option>
+        <option value="7">Year 7</option>
+        <option value="8">Year 8</option>
+        <option value="9">Year 9</option>
+        <option value="10">Year 10</option>
+        <option value="11">Year 11</option>
+        <option value="12">Year 12</option>
+        <option value="13">Year 13</option>
+      </select>
+    </div>
     <div class="settings-item" onclick="toggleSetting('shuffleDefault')">
       <div>
         <div class="settings-item-label">Shuffle cards by default</div>
@@ -911,6 +927,17 @@
     <div class="modal-title" id="modal-set-title">New set</div>
     <label>Set name</label>
     <input type="text" id="set-name-input" placeholder="e.g. Biology — Cell Structure" maxlength="60">
+    <label>School year</label>
+    <select id="set-year-input" style="margin-bottom:16px">
+      <option value="">Not set</option>
+      <option value="7">Year 7</option>
+      <option value="8">Year 8</option>
+      <option value="9">Year 9</option>
+      <option value="10">Year 10</option>
+      <option value="11">Year 11</option>
+      <option value="12">Year 12</option>
+      <option value="13">Year 13</option>
+    </select>
     <label>Subject emoji</label>
     <div class="emoji-grid" id="emoji-picker"></div>
     <label>Colour</label>
@@ -981,7 +1008,7 @@ const STORAGE_KEY = 'flipstudy_data';
 const SETTINGS_KEY = 'flipstudy_settings';
 
 let data = { sets: [] };
-let settings = { shuffleDefault: false, showTermFirst: true, ttsEnabled: true, voiceEn: '', voiceFr: '', ttsSpeed: 0.9, apiKey: '', autoUpdate: true, lastSeenVersion: '' };
+let settings = { shuffleDefault: false, showTermFirst: true, ttsEnabled: true, voiceEn: '', voiceFr: '', ttsSpeed: 0.9, apiKey: '', autoUpdate: true, lastSeenVersion: '', defaultYear: '10' };
 
 function load() {
   try {
@@ -1154,6 +1181,12 @@ function speedDescriptor(val) {
   if (v <= 1.0) return 'Normal';
   if (v <= 1.2) return 'Fast';
   return 'Very fast';
+}
+
+function saveDefaultYear() {
+  settings.defaultYear = document.getElementById('default-year-select').value;
+  saveSettings();
+  showToast('Default year saved');
 }
 
 function saveVoiceEn() {
@@ -1373,10 +1406,11 @@ function renderSetCard(set) {
     const diff = Math.floor((today - d) / 86400000);
     lastStudied = diff === 0 ? ' · Studied today' : diff === 1 ? ' · Studied yesterday' : ` · ${diff} days ago`;
   }
+  const yearBadge = set.year ? `<span style="font-size:11px;font-weight:700;background:${set.color}22;color:${set.color};padding:2px 7px;border-radius:10px;margin-left:6px">Y${set.year}</span>` : '';
   return `<div class="set-card" onclick="openSet('${set.id}')">
     <div class="set-icon" style="background:${set.color}22">${set.emoji}</div>
     <div class="set-info">
-      <div class="set-name">${esc(set.name)}</div>
+      <div class="set-name" style="display:flex;align-items:center">${esc(set.name)}${yearBadge}</div>
       <div class="set-meta">${total} card${total !== 1 ? 's' : ''}${total > 0 ? ' · ' + pct + '% mastered' : ''}${lastStudied}</div>
       ${total > 0 ? `<div class="set-progress"><div class="set-progress-fill" style="width:${pct}%;background:${set.color}"></div></div>` : ''}
     </div>
@@ -1531,6 +1565,7 @@ function openNewSetModal() {
   selectedEmoji = EMOJIS[0];
   selectedColor = COLORS[0];
   document.getElementById('set-name-input').value = '';
+  document.getElementById('set-year-input').value = settings.defaultYear || '';
   document.getElementById('modal-set-title').textContent = 'New set';
   renderEmojiPicker();
   renderColorPicker();
@@ -1545,6 +1580,7 @@ function openEditSetModal() {
   selectedEmoji = set.emoji;
   selectedColor = set.color;
   document.getElementById('set-name-input').value = set.name;
+  document.getElementById('set-year-input').value = set.year || '';
   document.getElementById('modal-set-title').textContent = 'Edit set';
   renderEmojiPicker();
   renderColorPicker();
@@ -1575,13 +1611,14 @@ function selectColor(c) {
 
 function saveSet() {
   const name = document.getElementById('set-name-input').value.trim();
+  const year = document.getElementById('set-year-input').value;
   if (!name) { showToast('Please enter a set name'); return; }
   if (editingSetId) {
     const set = getSet(editingSetId);
-    set.name = name; set.emoji = selectedEmoji; set.color = selectedColor;
+    set.name = name; set.emoji = selectedEmoji; set.color = selectedColor; set.year = year;
     showToast('Set updated');
   } else {
-    data.sets.unshift({ id: uid(), name, emoji: selectedEmoji, color: selectedColor, archived: false, cards: [] });
+    data.sets.unshift({ id: uid(), name, emoji: selectedEmoji, color: selectedColor, year, archived: false, cards: [] });
     showToast('Set created!');
   }
   save();
@@ -2001,6 +2038,10 @@ function renderSettings() {
   if (el) {
     el.textContent = `${streak.current} day${streak.current !== 1 ? 's' : ''} current · ${streak.best} day${streak.best !== 1 ? 's' : ''} best`;
   }
+  // Default year dropdown
+  const yearEl = document.getElementById('default-year-select');
+  if (yearEl) yearEl.value = settings.defaultYear || '';
+
   // Manual update buttons visibility
   const manualBtns = document.getElementById('manual-update-btns');
   if (manualBtns) manualBtns.style.display = settings.autoUpdate ? 'none' : 'block';
@@ -2182,9 +2223,19 @@ ${set.cards.map(c => `• ${c.front} | ${c.back}`).join('\n')}
 Mastered cards (${known.length}): ${known.map(c => c.front).join(', ') || 'none yet'}
 Still learning (${weak.length}): ${weak.map(c => c.front).join(', ') || 'none — all mastered!'}`;
 
+  const yearContext = set.year
+    ? `The student is in Year ${set.year} in the UK school system.${
+        set.year <= 9 ? ' Use simple, encouraging language suitable for a younger secondary school student. Keep explanations clear and avoid overly technical language.' :
+        set.year <= 11 ? ' This is GCSE level. Focus on exam technique, key definitions, and the depth of understanding required for GCSE assessment.' :
+        ' This is A-Level. The student needs thorough, detailed explanations and should be challenged with higher-order thinking questions.'
+      }`
+    : 'The student is a UK secondary school student.';
+
   const systemPrompt = `You are a focused GCSE revision assistant. Your ONLY purpose is to help the student revise the specific flashcard set provided below. You must not answer any questions or requests that are not directly related to this flashcard set and its subject matter.
 
 If the student asks about anything unrelated — other subjects, homework, general knowledge, creative writing, coding, jokes, or anything else — politely decline and redirect them back to their revision. Do not explain that you have been restricted; simply say something like "I'm here to help you revise ${set.name} — let's keep focused on that! Is there anything about your cards I can help with?"
+
+${yearContext}
 
 ${cardContext}
 
@@ -2192,7 +2243,7 @@ Behaviour guidelines:
 - Only discuss topics directly related to the cards in this set
 - Be encouraging and supportive
 - Keep responses concise and easy to read on a phone screen
-- Use simple language appropriate for a 14-year-old
+- Tailor language complexity and question difficulty to the student's school year
 - When testing the student, ask one question at a time and wait for their response
 - Use **bold** for important terms
 - When marking answers, be generous — accept close answers and explain the ideal answer
@@ -2295,7 +2346,7 @@ function saveApiKey() {
 // ════════════════════════════════════
 // UPDATE & CHANGELOG
 // ════════════════════════════════════
-const APP_VERSION = '1.6';
+const APP_VERSION = '1.7';
 const CHANGELOG_URL = 'https://flipstudy.github.io/flipstudy/changelog.json';
 
 let changelogData = null;
@@ -2370,32 +2421,44 @@ async function showChangelog() {
 }
 
 function showChangelogModal(cl, onlyNew) {
-  const versionsToShow = onlyNew
-    ? cl.versions.filter(v => versionIsNewer(v.version, settings.lastSeenVersion || '0'))
-    : cl.versions;
-
+  const latestVersion = cl.versions[0];
   const title = onlyNew ? "What's new 🎉" : "Changelog";
   document.getElementById('changelog-modal-title').textContent = title;
   document.getElementById('changelog-modal-version').textContent = `v${cl.latest}`;
 
-  let html = '';
-  versionsToShow.forEach((v, i) => {
-    html += `<div style="margin-bottom:20px">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
-        <span style="font-size:13px;font-weight:800;color:var(--primary)">v${v.version}</span>
-        <span style="font-size:14px;font-weight:700;color:var(--text)">${v.title}</span>
-        <span style="font-size:11px;color:var(--text3);margin-left:auto">${v.date}</span>
+  function renderVersions(versions) {
+    return versions.map((v, i) => `
+      <div style="margin-bottom:20px">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+          <span style="font-size:13px;font-weight:800;color:var(--primary)">v${v.version}</span>
+          <span style="font-size:14px;font-weight:700;color:var(--text)">${v.title}</span>
+          <span style="font-size:11px;color:var(--text3);margin-left:auto">${v.date}</span>
+        </div>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:6px">
+          ${v.changes.map(c => `<li style="display:flex;gap:8px;font-size:13px;color:var(--text2);line-height:1.5">
+            <span style="color:var(--primary);flex-shrink:0">•</span>${c}
+          </li>`).join('')}
+        </ul>
       </div>
-      <ul style="list-style:none;display:flex;flex-direction:column;gap:6px">
-        ${v.changes.map(c => `<li style="display:flex;gap:8px;font-size:13px;color:var(--text2);line-height:1.5">
-          <span style="color:var(--primary);flex-shrink:0">•</span>${c}
-        </li>`).join('')}
-      </ul>
-    </div>
-    ${i < versionsToShow.length - 1 ? '<div style="height:1px;background:var(--border);margin-bottom:20px"></div>' : ''}`;
-  });
+      ${i < versions.length - 1 ? '<div style="height:1px;background:var(--border);margin-bottom:20px"></div>' : ''}`
+    ).join('');
+  }
 
-  if (!html) html = `<p style="color:var(--text2);font-size:14px">You're up to date — no new changes to show.</p>`;
+  // Always show just the latest version first
+  let html = renderVersions([latestVersion]);
+
+  // Add "View full changelog" button if there are older versions
+  if (cl.versions.length > 1) {
+    html += `<button id="expand-changelog-btn" onclick="expandChangelog()" 
+      style="width:100%;padding:12px;background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--radius-sm);
+      font-family:var(--font);font-size:14px;font-weight:700;color:var(--text2);cursor:pointer;margin-top:4px">
+      View full changelog (${cl.versions.length} versions)
+    </button>
+    <div id="full-changelog" style="display:none;margin-top:16px">
+      <div style="height:1px;background:var(--border);margin-bottom:20px"></div>
+      ${renderVersions(cl.versions.slice(1))}
+    </div>`;
+  }
 
   document.getElementById('changelog-modal-content').innerHTML = html;
   document.getElementById('modal-changelog').classList.add('open');
@@ -2403,6 +2466,13 @@ function showChangelogModal(cl, onlyNew) {
   // Mark this version as seen
   settings.lastSeenVersion = cl.latest;
   saveSettings();
+}
+
+function expandChangelog() {
+  const full = document.getElementById('full-changelog');
+  const btn = document.getElementById('expand-changelog-btn');
+  if (full) full.style.display = 'block';
+  if (btn) btn.style.display = 'none';
 }
 
 // ════════════════════════════════════
