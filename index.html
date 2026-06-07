@@ -415,6 +415,29 @@
   .tts-btn.front:active { background: rgba(92,107,192,0.3); }
   .tts-btn svg { width: 18px; height: 18px; }
 
+  /* ── AI ACTION CARDS ── */
+  .ai-action-card {
+    background: var(--surface); border-radius: var(--radius);
+    padding: 14px 16px; margin-bottom: 10px;
+    border: 1px solid var(--border); box-shadow: var(--shadow);
+    display: flex; align-items: center; gap: 14px;
+    cursor: pointer; transition: transform 0.12s;
+  }
+  .ai-action-card:active { transform: scale(0.98); }
+  .ai-action-icon { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; }
+  .ai-action-text { flex: 1; min-width: 0; }
+  .ai-action-title { font-size: 15px; font-weight: 700; color: var(--text); }
+  .ai-action-sub { font-size: 12px; color: var(--text2); margin-top: 2px; line-height: 1.4; }
+
+  /* ── AI PREVIEW CARDS ── */
+  .ai-preview-card {
+    background: var(--surface); border-radius: var(--radius-sm);
+    border: 1px solid var(--border); padding: 14px; margin-bottom: 10px;
+  }
+  .ai-preview-front { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+  .ai-preview-back { font-size: 13px; color: var(--text2); line-height: 1.5; }
+  .ai-preview-num { font-size: 11px; font-weight: 700; color: var(--primary); margin-bottom: 6px; }
+
   /* ── AI CHAT ── */
   .ai-chip {
     padding: 7px 13px; border-radius: 20px;
@@ -855,36 +878,115 @@
       Exit
     </button>
     <span style="font-size:15px;font-weight:800;color:var(--primary)" id="ai-set-name"></span>
-    <button class="icon-btn" onclick="clearAiChat()" title="Clear chat">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
-    </button>
+    <div style="width:40px"></div>
   </div>
 
-  <!-- Quick action chips -->
-  <div id="ai-chips" style="padding:12px 16px 0;display:flex;gap:8px;flex-wrap:wrap;border-bottom:1px solid var(--border)">
-    <button class="ai-chip" onclick="aiQuickAction('generate')">✨ Generate questions</button>
-    <button class="ai-chip" onclick="aiQuickAction('test')">📝 Test me</button>
-    <button class="ai-chip" onclick="aiQuickAction('weak')">💪 Focus on weak cards</button>
-    <button class="ai-chip" onclick="aiQuickAction('gaps')">🔍 Find gaps</button>
-    <button class="ai-chip" onclick="aiQuickAction('explain')">💡 Explain a card</button>
-    <button class="ai-chip" onclick="aiQuickAction('tips')">🎯 Revision tips</button>
+  <div class="content" id="ai-home-view">
+    <!-- Action buttons -->
+    <div class="section-label">Generate cards</div>
+    <div class="ai-action-card" onclick="aiAction('generate')">
+      <div class="ai-action-icon" style="background:#E8EAF6">✨</div>
+      <div class="ai-action-text">
+        <div class="ai-action-title">Generate questions</div>
+        <div class="ai-action-sub">AI creates 5 new practice cards based on your set</div>
+      </div>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--text3)" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+    </div>
+    <div class="ai-action-card" onclick="aiAction('weak')">
+      <div class="ai-action-icon" style="background:#FBE9E7">💪</div>
+      <div class="ai-action-text">
+        <div class="ai-action-title">Focus on weak cards</div>
+        <div class="ai-action-sub">Generate harder questions for cards you're still learning</div>
+      </div>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--text3)" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+    </div>
+    <div class="ai-action-card" onclick="aiAction('gaps')">
+      <div class="ai-action-icon" style="background:#E8F5E9">🔍</div>
+      <div class="ai-action-text">
+        <div class="ai-action-title">Find gaps</div>
+        <div class="ai-action-sub">Identify missing topics and create cards for them</div>
+      </div>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--text3)" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+    </div>
+
+    <div class="section-label">Test yourself</div>
+    <div class="ai-action-card" onclick="aiAction('test')">
+      <div class="ai-action-icon" style="background:#E8F5E9">📝</div>
+      <div class="ai-action-text">
+        <div class="ai-action-title">AI Quiz</div>
+        <div class="ai-action-sub">AI generates brand new questions in quiz format</div>
+      </div>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--text3)" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+    </div>
+
+    <div class="section-label">Get help</div>
+    <div class="ai-action-card" onclick="aiAction('explain')">
+      <div class="ai-action-icon" style="background:#FFF8E1">💡</div>
+      <div class="ai-action-text">
+        <div class="ai-action-title">Explain a card</div>
+        <div class="ai-action-sub">Get a simpler explanation with examples and memory tips</div>
+      </div>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--text3)" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+    </div>
+    <div class="ai-action-card" onclick="aiAction('tips')">
+      <div class="ai-action-icon" style="background:#F3E5F5">🎯</div>
+      <div class="ai-action-text">
+        <div class="ai-action-title">Revision tips</div>
+        <div class="ai-action-sub">Get tailored advice for revising this topic</div>
+      </div>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--text3)" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+    </div>
   </div>
 
-  <!-- Chat messages -->
-  <div id="ai-messages" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px;padding-bottom:8px">
-    <!-- populated by JS -->
+  <!-- Loading view -->
+  <div id="ai-loading-view" style="display:none;flex:1;align-items:center;justify-content:center;flex-direction:column;gap:16px">
+    <div class="ai-typing" style="align-self:center">
+      <span></span><span></span><span></span>
+    </div>
+    <div style="font-size:15px;font-weight:600;color:var(--text2)" id="ai-loading-label">Generating…</div>
   </div>
 
-  <!-- Input bar -->
-  <div style="padding:10px 12px 24px;border-top:1px solid var(--border);display:flex;gap:8px;align-items:flex-end;background:var(--surface)">
-    <textarea id="ai-input" placeholder="Ask anything about this set…" maxlength="500"
-      style="flex:1;min-height:40px;max-height:120px;resize:none;border:1.5px solid var(--border);border-radius:12px;padding:10px 12px;font-family:var(--font);font-size:14px;color:var(--text);outline:none;background:var(--bg);margin-bottom:0"
-      onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendAiMessage()}"
-      oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"></textarea>
-    <button onclick="sendAiMessage()" id="ai-send-btn"
-      style="width:40px;height:40px;border-radius:12px;background:var(--primary);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:opacity 0.15s">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-    </button>
+  <!-- Card preview view -->
+  <div id="ai-preview-view" style="display:none;flex-direction:column;flex:1;overflow:hidden">
+    <div style="padding:16px 16px 8px;border-bottom:1px solid var(--border)">
+      <div style="font-size:17px;font-weight:800;color:var(--text)" id="ai-preview-title"></div>
+      <div style="font-size:13px;color:var(--text2);margin-top:2px" id="ai-preview-sub"></div>
+    </div>
+    <div id="ai-preview-list" style="flex:1;overflow-y:auto;padding:12px 16px"></div>
+    <div style="padding:12px 16px 24px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:8px;background:var(--surface)">
+      <button class="btn btn-primary" id="ai-add-this-set">Add to this set</button>
+      <button class="btn btn-ghost" onclick="aiSaveAsNewSet()">Save as new set</button>
+      <button class="btn btn-ghost" onclick="showAiHome()">← Back</button>
+    </div>
+  </div>
+
+  <!-- Chat view (explain / tips only) -->
+  <div id="ai-chat-view" style="display:none;flex-direction:column;flex:1;overflow:hidden">
+    <div style="padding:10px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
+      <div style="font-size:14px;font-weight:700;color:var(--text2)" id="ai-chat-label"></div>
+      <button onclick="showAiHome()" style="background:none;border:none;font-family:var(--font);font-size:13px;font-weight:700;color:var(--primary);cursor:pointer">← Back</button>
+    </div>
+    <div id="ai-messages" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px"></div>
+    <div style="padding:10px 12px 24px;border-top:1px solid var(--border);display:flex;gap:8px;align-items:flex-end;background:var(--surface)">
+      <textarea id="ai-input" placeholder="Ask a follow-up question…" maxlength="500"
+        style="flex:1;min-height:40px;max-height:120px;resize:none;border:1.5px solid var(--border);border-radius:12px;padding:10px 12px;font-family:var(--font);font-size:14px;color:var(--text);outline:none;background:var(--bg);margin-bottom:0"
+        onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendAiMessage()}"
+        oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"></textarea>
+      <button onclick="sendAiMessage()"
+        style="width:40px;height:40px;border-radius:12px;background:var(--primary);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- AI Quiz view -->
+  <div id="ai-quiz-view" style="display:none;flex-direction:column;flex:1;overflow:hidden">
+    <div style="padding:10px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
+      <div style="font-size:14px;font-weight:700;color:var(--text2)" id="ai-quiz-counter"></div>
+      <button onclick="showAiHome()" style="background:none;border:none;font-family:var(--font);font-size:13px;font-weight:700;color:var(--primary);cursor:pointer">Exit quiz</button>
+    </div>
+    <div class="study-progress-bar"><div class="study-progress-fill" id="ai-quiz-progress" style="width:0%"></div></div>
+    <div class="content" id="ai-quiz-content"></div>
   </div>
 </div>
 
@@ -2164,108 +2266,215 @@ function confetti() {
 // ════════════════════════════════════
 let aiChatHistory = [];
 let aiIsLoading = false;
+let aiGeneratedCards = [];
+let aiQuizQuestions = [];
+let aiQuizIndex = 0;
+let aiQuizScore = 0;
+let aiQuizAnswered = false;
 
 function startAi() {
-  if (!settings.apiKey) { showToast('Add your API key in Settings first'); return; }
+  if (!settings.apiKey) { showToast('Add your password in Settings first'); return; }
   const set = getSet(currentSetId);
   aiChatHistory = [];
   showStudyScreen('ai');
   document.getElementById('ai-set-name').textContent = set.name;
-  document.getElementById('ai-messages').innerHTML = '';
-  // Welcome message
-  const cardSummary = set.cards.map(c => `• ${c.front} → ${c.back}`).join('\n');
-  const weakCards = set.cards.filter(c => !c.known);
-  addAiMessage('assistant',
-    `Hi! I'm your AI Revision Assistant for **${set.name}** 👋\n\nI can see all ${set.cards.length} cards in this set${weakCards.length > 0 ? ` — you're still working on ${weakCards.length} of them` : ' — and you\'ve mastered them all!'}.\n\nUse the buttons above to get started, or just ask me anything.`
-  );
+  showAiHome();
 }
 
-function clearAiChat() {
-  aiChatHistory = [];
-  document.getElementById('ai-messages').innerHTML = '';
-  const set = getSet(currentSetId);
-  addAiMessage('assistant', `Chat cleared! I still know all the cards in **${set.name}**. What would you like to do?`);
+function showAiHome() {
+  document.getElementById('ai-home-view').style.display = 'block';
+  document.getElementById('ai-loading-view').style.display = 'none';
+  document.getElementById('ai-preview-view').style.display = 'none';
+  document.getElementById('ai-chat-view').style.display = 'none';
+  document.getElementById('ai-quiz-view').style.display = 'none';
 }
 
-function aiQuickAction(action) {
+function showAiLoading(label) {
+  document.getElementById('ai-home-view').style.display = 'none';
+  document.getElementById('ai-loading-view').style.display = 'flex';
+  document.getElementById('ai-preview-view').style.display = 'none';
+  document.getElementById('ai-chat-view').style.display = 'none';
+  document.getElementById('ai-quiz-view').style.display = 'none';
+  document.getElementById('ai-loading-label').textContent = label || 'Generating...';
+}
+
+function showAiPreview(cards, title, sub) {
+  aiGeneratedCards = cards;
+  document.getElementById('ai-home-view').style.display = 'none';
+  document.getElementById('ai-loading-view').style.display = 'none';
+  document.getElementById('ai-preview-view').style.display = 'flex';
+  document.getElementById('ai-chat-view').style.display = 'none';
+  document.getElementById('ai-quiz-view').style.display = 'none';
+  document.getElementById('ai-preview-title').textContent = title;
+  document.getElementById('ai-preview-sub').textContent = sub;
+  document.getElementById('ai-add-this-set').onclick = () => aiAddToCurrentSet();
+  document.getElementById('ai-preview-list').innerHTML = cards.map((c, i) =>
+    '<div class="ai-preview-card">' +
+    '<div class="ai-preview-num">Card ' + (i+1) + '</div>' +
+    '<div class="ai-preview-front">' + esc(c.front) + '</div>' +
+    '<div class="ai-preview-back">' + esc(c.back) + '</div>' +
+    '</div>').join('');
+}
+
+function showAiChat(label) {
+  document.getElementById('ai-home-view').style.display = 'none';
+  document.getElementById('ai-loading-view').style.display = 'none';
+  document.getElementById('ai-preview-view').style.display = 'none';
+  document.getElementById('ai-chat-view').style.display = 'flex';
+  document.getElementById('ai-quiz-view').style.display = 'none';
+  document.getElementById('ai-chat-label').textContent = label;
+  document.getElementById('ai-messages').innerHTML = '';
+}
+
+function showAiQuizView() {
+  document.getElementById('ai-home-view').style.display = 'none';
+  document.getElementById('ai-loading-view').style.display = 'none';
+  document.getElementById('ai-preview-view').style.display = 'none';
+  document.getElementById('ai-chat-view').style.display = 'none';
+  document.getElementById('ai-quiz-view').style.display = 'flex';
+}
+
+function aiAddToCurrentSet() {
   const set = getSet(currentSetId);
+  aiGeneratedCards.forEach(c => set.cards.push({ id: uid(), front: c.front, back: c.back, known: false }));
+  save();
+  showToast(aiGeneratedCards.length + ' cards added!');
+  showAiHome();
+}
+
+function aiSaveAsNewSet() {
+  const set = getSet(currentSetId);
+  const newSet = {
+    id: uid(), name: set.name + ' - AI Generated',
+    emoji: '✨', color: set.color, year: set.year,
+    archived: false,
+    cards: aiGeneratedCards.map(c => ({ id: uid(), front: c.front, back: c.back, known: false }))
+  };
+  data.sets.unshift(newSet);
+  save();
+  showToast('Saved as new set!');
+  showAiHome();
+}
+
+async function aiAction(action) {
+  const set = getSet(currentSetId);
+  const cardContext = buildCardContext(set);
+  const yearContext = buildYearContext(set);
+
+  if (action === 'explain' || action === 'tips') {
+    const labels = { explain: 'Explain a card', tips: 'Revision tips' };
+    showAiChat(labels[action]);
+    aiChatHistory = [];
+    const prompts = {
+      explain: 'Pick one of the cards from my set that might be tricky to understand and explain it in a simpler way, with a real-world example and a memory trick to help it stick.',
+      tips: 'Give me 3 specific, practical revision tips for this topic based on my card set. Keep them concise and actionable.'
+    };
+    await sendAiChatMessage(prompts[action], cardContext, yearContext);
+    return;
+  }
+
+  if (action === 'test') {
+    showAiLoading('Creating quiz questions...');
+    const systemPrompt = buildSystemPrompt(set, cardContext, yearContext);
+    const prompt = 'Generate exactly 5 multiple choice questions based on this card set. Each question must be different from the card fronts - create new questions that test understanding. Return ONLY a JSON array with no other text, in this exact format:\n[\n  {\n    "question": "question text here",\n    "correct": "correct answer here",\n    "wrong": ["wrong answer 1", "wrong answer 2", "wrong answer 3"]\n  }\n]';
+    const result = await callAI(systemPrompt, prompt);
+    if (!result) { showAiHome(); return; }
+    try {
+      const clean = result.replace(/```json|```/g, '').trim();
+      aiQuizQuestions = JSON.parse(clean);
+      aiQuizIndex = 0; aiQuizScore = 0;
+      showAiQuizView();
+      renderAiQuizQ();
+    } catch(e) { showToast('Could not generate quiz - please try again'); showAiHome(); }
+    return;
+  }
+
+  const loadingLabels = { generate: 'Generating questions...', weak: 'Analysing weak cards...', gaps: 'Finding gaps...' };
+  showAiLoading(loadingLabels[action]);
+  const systemPrompt = buildSystemPrompt(set, cardContext, yearContext);
   const weakCards = set.cards.filter(c => !c.known);
   const prompts = {
-    generate: `Generate 5 practice questions based on my flashcard set. Make them different from the cards themselves — mix up question styles (short answer, fill in the blank, true/false). Don't just repeat the card fronts.`,
-    test: `Test me! Ask me one question at a time. Wait for my answer before moving on, then tell me if I'm right or wrong and explain why. Start with the first question now.`,
+    generate: 'Generate exactly 5 new flashcards based on this card set. Make them different from the existing cards - test understanding in new ways. Return ONLY a JSON array with no other text:\n[{"front": "question or term", "back": "answer or definition"}]',
     weak: weakCards.length > 0
-      ? `I'm struggling with these cards: ${weakCards.map(c => c.front).join(', ')}. Can you help me understand them better and give me some tips to remember each one?`
-      : `I've mastered all the cards! Can you generate some harder extension questions to really test my understanding?`,
-    gaps: `Look at my flashcard set and identify any important topics or concepts that I might be missing. What should I consider adding?`,
-    explain: `Pick one of the cards from my set that might be tricky to understand and explain it in a simpler way, with an example or a memory trick to help it stick.`,
-    tips: `Give me 3 specific revision tips for this topic based on my card set. Make them practical and actionable for a GCSE student.`
+      ? 'The student is struggling with: ' + weakCards.map(c => c.front).join(', ') + '. Generate exactly 5 flashcards that approach these topics differently to help understanding. Return ONLY a JSON array with no other text:\n[{"front": "question or term", "back": "answer or definition"}]'
+      : 'The student has mastered all cards! Generate 5 harder extension flashcards that go deeper into the topic. Return ONLY a JSON array with no other text:\n[{"front": "question or term", "back": "answer or definition"}]',
+    gaps: 'Analyse this card set and identify important topics that are missing. Generate exactly 5 flashcards covering those gaps. Return ONLY a JSON array with no other text:\n[{"front": "question or term", "back": "answer or definition"}]'
   };
-  sendAiMessageWithText(prompts[action]);
+  const result = await callAI(systemPrompt, prompts[action]);
+  if (!result) { showAiHome(); return; }
+  try {
+    const clean = result.replace(/```json|```/g, '').trim();
+    const cards = JSON.parse(clean);
+    const titles = { generate: '5 new questions generated', weak: '5 focused practice cards', gaps: '5 gap-filling cards' };
+    const subs = { generate: 'Add them to this set or save as a new one', weak: 'Targeting your weak areas', gaps: 'Topics missing from your current set' };
+    showAiPreview(cards, titles[action], subs[action]);
+  } catch(e) { showToast('Could not generate cards - please try again'); showAiHome(); }
 }
 
-async function sendAiMessage() {
-  const input = document.getElementById('ai-input');
-  const text = input.value.trim();
-  if (!text || aiIsLoading) return;
-  input.value = '';
-  input.style.height = 'auto';
-  sendAiMessageWithText(text);
+function renderAiQuizQ() {
+  if (aiQuizIndex >= aiQuizQuestions.length) { showAiQuizResults(); return; }
+  aiQuizAnswered = false;
+  const q = aiQuizQuestions[aiQuizIndex];
+  const options = shuffle([q.correct, ...q.wrong]);
+  document.getElementById('ai-quiz-counter').textContent = 'Question ' + (aiQuizIndex + 1) + ' of ' + aiQuizQuestions.length;
+  document.getElementById('ai-quiz-progress').style.width = ((aiQuizIndex + 1) / aiQuizQuestions.length * 100) + '%';
+  document.getElementById('ai-quiz-content').innerHTML =
+    '<div class="quiz-question" style="margin-bottom:16px">' + esc(q.question) + '</div>' +
+    '<div class="quiz-options">' +
+    options.map((opt, i) => '<button class="quiz-opt" data-index="' + i + '">' + esc(opt) + '</button>').join('') +
+    '</div>';
+  document.querySelectorAll('#ai-quiz-content .quiz-opt').forEach((btn, i) => {
+    btn.addEventListener('click', () => selectAiQuizOpt(btn, options[i], q.correct));
+  });
 }
 
-async function sendAiMessageWithText(text) {
-  if (aiIsLoading) return;
-  const set = getSet(currentSetId);
+function selectAiQuizOpt(btn, selected, correct) {
+  if (aiQuizAnswered) return;
+  aiQuizAnswered = true;
+  document.querySelectorAll('#ai-quiz-content .quiz-opt').forEach(o => {
+    if (o.textContent === correct) o.classList.add('correct');
+  });
+  if (selected === correct) { btn.classList.add('correct'); aiQuizScore++; }
+  else btn.classList.add('wrong');
+  setTimeout(() => { aiQuizIndex++; renderAiQuizQ(); }, 1000);
+}
 
-  // Build card context
+function showAiQuizResults() {
+  const pct = Math.round((aiQuizScore / aiQuizQuestions.length) * 100);
+  const colour = pct >= 80 ? 'var(--success)' : pct >= 50 ? 'var(--warning)' : 'var(--danger)';
+  const bgColour = pct >= 80 ? 'var(--success-light)' : pct >= 50 ? 'var(--warning-light)' : 'var(--danger-light)';
+  const emoji = pct >= 80 ? 'Great work!' : pct >= 50 ? 'Good effort!' : 'Keep going!';
+  document.getElementById('ai-quiz-content').innerHTML =
+    '<div class="results-card"><div class="score-circle" style="background:' + bgColour + ';color:' + colour + '">' + pct + '%<small>' + aiQuizScore + '/' + aiQuizQuestions.length + '</small></div>' +
+    '<h2 style="font-size:22px;font-weight:800;margin-bottom:8px">AI Quiz complete!</h2>' +
+    '<p style="color:var(--text2);font-size:14px">' + emoji + '</p></div>' +
+    '<button class="btn btn-primary" onclick="aiAction(\'test\')">Try again</button>' +
+    '<button class="btn btn-ghost" style="margin-top:8px" onclick="showAiHome()">Back to assistant</button>';
+  if (pct >= 80) confetti();
+}
+
+function buildCardContext(set) {
   const known = set.cards.filter(c => c.known);
   const weak = set.cards.filter(c => !c.known);
-  const cardContext = `FLASHCARD SET: "${set.name}"
-All cards (${set.cards.length} total):
-${set.cards.map(c => `• ${c.front} | ${c.back}`).join('\n')}
+  return 'FLASHCARD SET: "' + set.name + '"\nAll cards (' + set.cards.length + ' total):\n' +
+    set.cards.map(c => '- ' + c.front + ' | ' + c.back).join('\n') +
+    '\nMastered (' + known.length + '): ' + (known.map(c => c.front).join(', ') || 'none yet') +
+    '\nStill learning (' + weak.length + '): ' + (weak.map(c => c.front).join(', ') || 'none - all mastered!');
+}
 
-Mastered cards (${known.length}): ${known.map(c => c.front).join(', ') || 'none yet'}
-Still learning (${weak.length}): ${weak.map(c => c.front).join(', ') || 'none — all mastered!'}`;
+function buildYearContext(set) {
+  if (!set.year) return 'The student is a UK secondary school student.';
+  return 'The student is in Year ' + set.year + ' in the UK school system.' + (
+    set.year <= 9 ? ' Use simple, encouraging language suitable for a younger secondary school student.' :
+    set.year <= 11 ? ' This is GCSE level. Focus on exam technique, key definitions, and GCSE-appropriate depth.' :
+    ' This is A-Level. Use detailed explanations and challenge with higher-order thinking.');
+}
 
-  const yearContext = set.year
-    ? `The student is in Year ${set.year} in the UK school system.${
-        set.year <= 9 ? ' Use simple, encouraging language suitable for a younger secondary school student. Keep explanations clear and avoid overly technical language.' :
-        set.year <= 11 ? ' This is GCSE level. Focus on exam technique, key definitions, and the depth of understanding required for GCSE assessment.' :
-        ' This is A-Level. The student needs thorough, detailed explanations and should be challenged with higher-order thinking questions.'
-      }`
-    : 'The student is a UK secondary school student.';
+function buildSystemPrompt(set, cardContext, yearContext) {
+  return 'You are a focused revision assistant. Your ONLY purpose is to help the student revise the specific flashcard set provided. Do not respond to anything unrelated to this set.\n' + yearContext + '\n' + cardContext;
+}
 
-  const systemPrompt = `You are a focused GCSE revision assistant. Your ONLY purpose is to help the student revise the specific flashcard set provided below. You must not answer any questions or requests that are not directly related to this flashcard set and its subject matter.
-
-If the student asks about anything unrelated — other subjects, homework, general knowledge, creative writing, coding, jokes, or anything else — politely decline and redirect them back to their revision. Do not explain that you have been restricted; simply say something like "I'm here to help you revise ${set.name} — let's keep focused on that! Is there anything about your cards I can help with?"
-
-${yearContext}
-
-${cardContext}
-
-Behaviour guidelines:
-- Only discuss topics directly related to the cards in this set
-- Be encouraging and supportive
-- Keep responses concise and easy to read on a phone screen
-- Tailor language complexity and question difficulty to the student's school year
-- When testing the student, ask one question at a time and wait for their response
-- Use **bold** for important terms
-- When marking answers, be generous — accept close answers and explain the ideal answer
-- Reference the actual cards in the set when relevant`;
-
-  addAiMessage('user', text);
-  aiChatHistory.push({ role: 'user', content: text });
-
-  // Show typing indicator
-  const typingId = 'typing-' + Date.now();
-  const messagesEl = document.getElementById('ai-messages');
-  const typingEl = document.createElement('div');
-  typingEl.id = typingId;
-  typingEl.className = 'ai-typing';
-  typingEl.innerHTML = '<span></span><span></span><span></span>';
-  messagesEl.appendChild(typingEl);
-  messagesEl.scrollTop = messagesEl.scrollHeight;
-  aiIsLoading = true;
-
+async function callAI(systemPrompt, userMessage) {
   try {
     const response = await fetch(WORKER_URL, {
       method: 'POST',
@@ -2275,50 +2484,75 @@ Behaviour guidelines:
         model: 'claude-sonnet-4-5',
         max_tokens: 1000,
         system: systemPrompt,
-        messages: aiChatHistory.slice(-10)
+        messages: [{ role: 'user', content: userMessage }]
       })
     });
-
-    const typing = document.getElementById(typingId);
-    if (typing) typing.remove();
-
     if (!response.ok) {
-      const err = await response.json().catch(() => ({}));
-      if (response.status === 401) {
-        addAiMessage('assistant', '❌ Incorrect password. Please check the password in Settings.');
-      } else if (response.status === 429) {
-        addAiMessage('assistant', '⏳ Too many requests — please wait a moment and try again.');
-      } else if (response.status === 403) {
-        addAiMessage('assistant', '❌ Access denied. Please contact the app administrator.');
-      } else {
-        addAiMessage('assistant', `❌ Something went wrong (${response.status}). Please try again.`);
-      }
+      if (response.status === 401) showToast('Incorrect password - check Settings');
+      else showToast('Error ' + response.status + ' - please try again');
+      return null;
+    }
+    const data = await response.json();
+    return data.content?.[0]?.text || null;
+  } catch(e) { showToast('Connection error - check your internet'); return null; }
+}
+
+async function sendAiChatMessage(text, cardContext, yearContext) {
+  if (aiIsLoading) return;
+  const set = getSet(currentSetId);
+  const ctx = cardContext || buildCardContext(set);
+  const yCtx = yearContext || buildYearContext(set);
+  const systemPrompt = buildSystemPrompt(set, ctx, yCtx);
+  addAiMessage('user', text);
+  aiChatHistory.push({ role: 'user', content: text });
+  const typingId = 'typing-' + Date.now();
+  const messagesEl = document.getElementById('ai-messages');
+  const typingEl = document.createElement('div');
+  typingEl.id = typingId; typingEl.className = 'ai-typing';
+  typingEl.innerHTML = '<span></span><span></span><span></span>';
+  messagesEl.appendChild(typingEl);
+  messagesEl.scrollTop = messagesEl.scrollHeight;
+  aiIsLoading = true;
+  try {
+    const response = await fetch(WORKER_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        password: settings.apiKey, model: 'claude-sonnet-4-5', max_tokens: 1000,
+        system: systemPrompt, messages: aiChatHistory.slice(-10)
+      })
+    });
+    document.getElementById(typingId)?.remove();
+    if (!response.ok) {
+      const msg = response.status === 401 ? 'Incorrect password - check Settings.' : 'Error ' + response.status + ' - please try again.';
+      addAiMessage('assistant', msg);
     } else {
       const data = await response.json();
-      const reply = data.content?.[0]?.text || 'Sorry, I couldn\'t generate a response.';
+      const reply = data.content?.[0]?.text || 'Sorry, no response generated.';
       aiChatHistory.push({ role: 'assistant', content: reply });
       addAiMessage('assistant', reply);
     }
-  } catch (e) {
-    const typing = document.getElementById(typingId);
-    if (typing) typing.remove();
-    addAiMessage('assistant', '❌ Could not connect — check your internet connection and try again.');
-  }
-
+  } catch(e) { document.getElementById(typingId)?.remove(); addAiMessage('assistant', 'Connection error - check your internet.'); }
   aiIsLoading = false;
+}
+
+async function sendAiMessage() {
+  const input = document.getElementById('ai-input');
+  const text = input.value.trim();
+  if (!text || aiIsLoading) return;
+  input.value = ''; input.style.height = 'auto';
+  await sendAiChatMessage(text);
 }
 
 function addAiMessage(role, text) {
   const el = document.getElementById('ai-messages');
   const bubble = document.createElement('div');
-  bubble.className = `ai-bubble ${role}`;
-  // Basic markdown: **bold**
-  bubble.innerHTML = text
-    .replace(/\*\*(.*?)\*\*/g, '<b>$1</b>')
-    .replace(/\n/g, '<br>');
+  bubble.className = 'ai-bubble ' + role;
+  bubble.innerHTML = text.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>').replace(/\n/g, '<br>');
   el.appendChild(bubble);
   el.scrollTop = el.scrollHeight;
 }
+
 
 // ════════════════════════════════════
 // API KEY MANAGEMENT
@@ -2346,10 +2580,10 @@ function saveApiKey() {
 // ════════════════════════════════════
 // UPDATE & CHANGELOG
 // ════════════════════════════════════
-const APP_VERSION = '1.7';
+const APP_VERSION = '1.8';
 const CHANGELOG_URL = 'https://raw.githubusercontent.com/flipstudy/flipstudy/main/changelog.json';
 const WORKER_URL = 'https://flipstudy-proxy.maine-1bd.workers.dev';
-  
+
 let changelogData = null;
 
 async function fetchChangelog() {
