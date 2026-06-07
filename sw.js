@@ -1,4 +1,4 @@
-const CACHE = 'flipstudy-v1.7d';
+const CACHE = 'flipstudy-v1.8';
 const ASSETS = [
   '/',
   '/flipstudy/',
@@ -25,6 +25,8 @@ self.addEventListener('activate', e => {
 
 self.addEventListener('fetch', e => {
   if (e.request.method !== 'GET') return;
+  // Only cache http/https requests
+  if (!e.request.url.startsWith('http')) return;
   // Always fetch changelog fresh from network
   if (e.request.url.includes('changelog.json')) {
     e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
