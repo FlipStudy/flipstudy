@@ -204,6 +204,7 @@
   .sm-btn:active { transform: scale(0.9); }
   .edit-btn { background: var(--primary-light); color: var(--primary); }
   .del-btn { background: var(--danger-light); color: var(--danger); }
+  .explain-btn { background: #FFF8E1; color: #F57F17; }
 
   /* ── MODAL ── */
   .modal-backdrop {
@@ -944,14 +945,6 @@
     </div>
 
     <div class="section-label">Get help</div>
-    <div class="ai-action-card" onclick="aiAction('explain')">
-      <div class="ai-action-icon" style="background:#FFF8E1">💡</div>
-      <div class="ai-action-text">
-        <div class="ai-action-title">Explain a card</div>
-        <div class="ai-action-sub">Get a simpler explanation with examples and memory tips</div>
-      </div>
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--text3)" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
-    </div>
     <div class="ai-action-card" onclick="aiAction('tips')">
       <div class="ai-action-icon" style="background:#F3E5F5">🎯</div>
       <div class="ai-action-text">
@@ -1704,12 +1697,16 @@ function openSet(id) {
     </div>`;
   } else {
     set.cards.forEach(card => {
+      const explainBtn = settings.apiKey
+        ? `<button class="sm-btn explain-btn" onclick="explainCard('${card.id}')" title="Explain this card">💡</button>`
+        : '';
       html += `<div class="card-item">
         <div class="card-item-content">
           <div class="card-front">${esc(card.front)}</div>
           <div class="card-back">${esc(card.back)}</div>
         </div>
         <div class="card-actions">
+          ${explainBtn}
           <button class="sm-btn edit-btn" onclick="openEditCardModal('${card.id}')">✏️</button>
           <button class="sm-btn del-btn" onclick="askDeleteCard('${card.id}')">🗑</button>
         </div>
@@ -2427,6 +2424,17 @@ let aiQuizIndex = 0;
 let aiQuizScore = 0;
 let aiQuizAnswered = false;
 
+function explainCard(cardId) {
+  const set = getSet(currentSetId);
+  const card = set.cards.find(c => c.id === cardId);
+  if (!card) return;
+  startAi();
+  const prompt = 'Please explain this specific card in a simple, clear way with a real-world example and a memory trick to help it stick:\n\nTerm: ' + card.front + '\nDefinition: ' + card.back;
+  showAiChat('💡 Explaining: ' + card.front);
+  aiChatHistory = [];
+  sendAiChatMessage(prompt, buildCardContext(set), buildYearContext(set));
+}
+
 function startAi() {
   if (!settings.apiKey) { showToast('Add your password in Settings first'); return; }
   const set = getSet(currentSetId);
@@ -2741,7 +2749,7 @@ function saveApiKey() {
 // ════════════════════════════════════
 // UPDATE & CHANGELOG
 // ════════════════════════════════════
-const APP_VERSION = '1.9';
+const APP_VERSION = '2.0';
 const CHANGELOG_URL = 'https://raw.githubusercontent.com/flipstudy/flipstudy/main/changelog.json';
 const WORKER_URL = 'https://flipstudy-proxy.maine-1bd.workers.dev';
 
@@ -2877,6 +2885,89 @@ function expandChangelog() {
   if (full) full.style.display = 'block';
   if (btn) btn.style.display = 'none';
 }
+
+// ════════════════════════════════════
+// ANDROID BACK BUTTON
+// ════════════════════════════════════
+
+// Push a state whenever we navigate so popstate fires on back press
+function pushNavState(state) {
+  history.pushState(state, '');
+}
+
+// Override navigation functions to push history states
+const _origOpenSet = openSet;
+openSet = function(id) {
+  _origOpenSet(id);
+  pushNavState({ page: 'set', id });
+};
+
+const _origShowStudyScreen = showStudyScreen;
+showStudyScreen = function(name) {
+  _origShowStudyScreen(name);
+  pushNavState({ page: 'study', mode: name });
+};
+
+window.addEventListener('popstate', function(e) {
+  const state = e.state;
+
+  // Close any open modal first
+  const openModal = document.querySelector('.modal-backdrop.open');
+  if (openModal) {
+    openModal.classList.remove('open');
+    if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+    // Re-push so next back press works
+    pushNavState(state);
+    return;
+  }
+
+  // AI sub-views — go back to AI home
+  const aiLoading = document.getElementById('ai-loading-view');
+  const aiPreview = document.getElementById('ai-preview-view');
+  const aiChat = document.getElementById('ai-chat-view');
+  const aiQuiz = document.getElementById('ai-quiz-view');
+  if (aiLoading && aiLoading.style.display !== 'none') { showAiHome(); pushNavState(state); return; }
+  if (aiPreview && aiPreview.style.display !== 'none') { showAiHome(); pushNavState(state); return; }
+  if (aiChat && aiChat.style.display !== 'none') { showAiHome(); pushNavState(state); return; }
+  if (aiQuiz && aiQuiz.style.display !== 'none') { showAiHome(); pushNavState(state); return; }
+
+  // Study screens — go back to set
+  const studyScreens = ['flashcard', 'learn', 'quiz', 'match', 'results', 'ai'];
+  const activeStudy = studyScreens.find(s => {
+    const el = document.getElementById('screen-' + s);
+    return el && el.classList.contains('active');
+  });
+  if (activeStudy) {
+    if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+    document.querySelectorAll('.study-screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('main-nav').style.display = 'flex';
+    if (currentSetId) _origOpenSet(currentSetId);
+    else goHome();
+    pushNavState({ page: 'set', id: currentSetId });
+    return;
+  }
+
+  // Set detail — go back to home
+  const setScreen = document.getElementById('screen-set');
+  if (setScreen && setScreen.classList.contains('active')) {
+    goHome();
+    pushNavState({ page: 'home' });
+    return;
+  }
+
+  // Settings — go back to home
+  const settingsScreen = document.getElementById('screen-settings');
+  if (settingsScreen && settingsScreen.classList.contains('active')) {
+    showMainScreen('home');
+    pushNavState({ page: 'home' });
+    return;
+  }
+
+  // Already on home — let the browser handle it (exits app)
+});
+
+// Push initial state on load
+pushNavState({ page: 'home' });
 
 // ════════════════════════════════════
 // INIT
