@@ -1,16 +1,28 @@
 {
-  "latest": "1.8",
+  "latest": "1.9",
   "versions": [
+    {
+      "version": "1.9",
+      "date": "2026-06-07",
+      "title": "Subjects & Exam Boards",
+      "changes": [
+        "Create subjects with an exam board (AQA, Edexcel, OCR, WJEC, CIE, SQA, CCEA)",
+        "Card sets are grouped under their subject on the home screen",
+        "Subject groups are collapsible \u2014 tap to expand or collapse, view is saved",
+        "Each subject shows total cards, sets, and overall mastery progress",
+        "AI Revision Assistant now knows the subject and exam board \u2014 tailors questions and explanations to the specific board style and mark scheme",
+        "Subject and exam board shown on the set detail screen"
+      ]
+    },
     {
       "version": "1.8",
       "date": "2026-06-07",
       "title": "Redesigned AI Revision Assistant",
       "changes": [
-        "AI assistant is now fully integrated with the card system — no more chat interface for card generation",
-        "Generate questions, Focus on weak cards, and Find gaps now create real flashcards you can add to your set or save as a new one",
-        "New AI Quiz mode — generates brand new questions in the familiar quiz format",
-        "Explain a card and Revision tips remain as a clean chat interface for back-and-forth help",
-        "Card preview screen shows all generated cards before you decide to add them"
+        "AI assistant now creates real flashcards \u2014 no more chat interface for card generation",
+        "Generate questions, Focus on weak cards and Find gaps produce cards you can add to your set or save as new",
+        "New AI Quiz mode generates brand new questions in the familiar quiz format",
+        "Explain a card and Revision tips remain as a chat interface"
       ]
     },
     {
@@ -20,7 +32,7 @@
       "changes": [
         "Set a school year (Y7-Y13) per card set, shown as a badge on the home screen",
         "Default school year setting in Settings",
-        "AI Revision Assistant tailors language and difficulty to the school year",
+        "AI tailors language and difficulty to the school year",
         "Changelog now shows only the latest version with option to expand full history"
       ]
     },
@@ -29,9 +41,8 @@
       "date": "2026-06-03",
       "title": "Updates & Changelog",
       "changes": [
-        "Added automatic and manual update settings",
-        "New changelog popup shows what changed after an update",
-        "Manual mode adds Check for updates and View changelog buttons in Settings"
+        "Automatic and manual update settings",
+        "Changelog popup shows what changed after an update"
       ]
     },
     {
@@ -39,7 +50,7 @@
       "date": "2026-06-03",
       "title": "AI Safety & Polish",
       "changes": [
-        "AI Revision Assistant now stays focused on the current card set only",
+        "AI Revision Assistant stays focused on the current card set only",
         "Added message length limit to AI chat input"
       ]
     },
@@ -48,9 +59,8 @@
       "date": "2026-06-03",
       "title": "AI Revision Assistant",
       "changes": [
-        "New AI Revision Assistant mode powered by Claude",
-        "Password-protected access via Cloudflare Worker proxy",
-        "Quick actions: Generate questions, Test me, Focus on weak cards, Find gaps, Explain a card, Revision tips"
+        "AI Revision Assistant powered by Claude via secure Cloudflare proxy",
+        "Password-protected access \u2014 your API key stays secure on the server"
       ]
     },
     {
@@ -58,7 +68,7 @@
       "date": "2026-06-03",
       "title": "Dictation",
       "changes": [
-        "Added microphone button to card editor — speak your term or definition instead of typing"
+        "Microphone button on card editor \u2014 speak your term or definition instead of typing"
       ]
     },
     {
@@ -66,9 +76,8 @@
       "date": "2026-06-03",
       "title": "Voice Picker & French Support",
       "changes": [
-        "Automatic French language detection — switches voice when French text is detected",
-        "Voice picker in Settings for English and French voices",
-        "Playback speed slider added to Settings"
+        "Automatic French language detection",
+        "Voice picker and speed control in Settings"
       ]
     },
     {
@@ -77,8 +86,7 @@
       "title": "Streaks & Text-to-Speech",
       "changes": [
         "Study streak counter on home screen",
-        "Last-studied date shown on each set card",
-        "Text-to-speech speaker button on flashcard and learn mode cards"
+        "Text-to-speech with speaker button on cards"
       ]
     },
     {
@@ -86,8 +94,6 @@
       "date": "2026-06-03",
       "title": "Initial Release",
       "changes": [
-        "Create and manage multiple card sets with emoji and colour",
-        "Archive and unarchive sets",
         "Flashcard, Learn, Quiz and Match study modes",
         "Progress tracking, import, backup and restore",
         "Offline support, no ads, no account required"
