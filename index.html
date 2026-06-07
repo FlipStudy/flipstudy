@@ -2272,7 +2272,7 @@ Behaviour guidelines:
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         password: settings.apiKey,
-        model: 'claude-sonnet-4-20250514',
+        model: 'claude-sonnet-4-5',
         max_tokens: 1000,
         system: systemPrompt,
         messages: aiChatHistory.slice(-10)
@@ -2348,7 +2348,7 @@ function saveApiKey() {
 // ════════════════════════════════════
 const APP_VERSION = '1.7';
 const CHANGELOG_URL = 'https://raw.githubusercontent.com/flipstudy/flipstudy/main/changelog.json';
-const WORKER_URL = 'https://flipstudy-proxy.maine-1bd.workers.dev'; // ← update this after deploying Worker
+const WORKER_URL = 'https://flipstudy-proxy.YOUR-SUBDOMAIN.workers.dev'; // ← update this after deploying Worker
 
 let changelogData = null;
 
