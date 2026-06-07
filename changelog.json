@@ -1,15 +1,27 @@
 {
-  "latest": "1.7",
+  "latest": "1.8",
   "versions": [
+    {
+      "version": "1.8",
+      "date": "2026-06-07",
+      "title": "Redesigned AI Revision Assistant",
+      "changes": [
+        "AI assistant is now fully integrated with the card system — no more chat interface for card generation",
+        "Generate questions, Focus on weak cards, and Find gaps now create real flashcards you can add to your set or save as a new one",
+        "New AI Quiz mode — generates brand new questions in the familiar quiz format",
+        "Explain a card and Revision tips remain as a clean chat interface for back-and-forth help",
+        "Card preview screen shows all generated cards before you decide to add them"
+      ]
+    },
     {
       "version": "1.7",
       "date": "2026-06-06",
       "title": "School Year & Changelog Improvements",
       "changes": [
-        "Set a school year (Y7–Y13) per card set — shown as a badge on the home screen",
-        "Default school year setting — automatically applied when creating new sets",
-        "AI Revision Assistant now tailors language and question difficulty to the school year",
-        "Changelog now shows only the latest version, with a button to expand the full history"
+        "Set a school year (Y7-Y13) per card set, shown as a badge on the home screen",
+        "Default school year setting in Settings",
+        "AI Revision Assistant tailors language and difficulty to the school year",
+        "Changelog now shows only the latest version with option to expand full history"
       ]
     },
     {
@@ -18,7 +30,7 @@
       "title": "Updates & Changelog",
       "changes": [
         "Added automatic and manual update settings",
-        "New changelog popup shows what's changed after an update",
+        "New changelog popup shows what changed after an update",
         "Manual mode adds Check for updates and View changelog buttons in Settings"
       ]
     },
@@ -37,9 +49,8 @@
       "title": "AI Revision Assistant",
       "changes": [
         "New AI Revision Assistant mode powered by Claude",
-        "Quick-action buttons: Generate questions, Test me, Focus on weak cards, Find gaps, Explain a card, Revision tips",
-        "Free-form chat with full card set context",
-        "API key entry in Settings — your own key, stored on device only"
+        "Password-protected access via Cloudflare Worker proxy",
+        "Quick actions: Generate questions, Test me, Focus on weak cards, Find gaps, Explain a card, Revision tips"
       ]
     },
     {
@@ -57,9 +68,7 @@
       "changes": [
         "Automatic French language detection — switches voice when French text is detected",
         "Voice picker in Settings for English and French voices",
-        "Playback speed slider added to Settings",
-        "Preview button to audition each voice before choosing",
-        "Warning shown if no French voice is installed, with setup instructions"
+        "Playback speed slider added to Settings"
       ]
     },
     {
@@ -69,8 +78,7 @@
       "changes": [
         "Study streak counter on home screen",
         "Last-studied date shown on each set card",
-        "Text-to-speech speaker button on flashcard and learn mode cards",
-        "TTS toggle in Settings"
+        "Text-to-speech speaker button on flashcard and learn mode cards"
       ]
     },
     {
@@ -81,11 +89,8 @@
         "Create and manage multiple card sets with emoji and colour",
         "Archive and unarchive sets",
         "Flashcard, Learn, Quiz and Match study modes",
-        "Progress tracking per set",
-        "Import cards by pasting text",
-        "Full backup and restore",
-        "Offline support via service worker",
-        "No ads, no account required"
+        "Progress tracking, import, backup and restore",
+        "Offline support, no ads, no account required"
       ]
     }
   ]
