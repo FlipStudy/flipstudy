@@ -388,6 +388,25 @@
   }
   .toggle.on::after { transform: translateX(20px); }
 
+  /* ── SUBJECT GROUPS ── */
+  .subject-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 14px; margin-bottom: 8px; margin-top: 16px;
+    background: var(--surface); border-radius: var(--radius-sm);
+    border: 1px solid var(--border); cursor: pointer;
+    transition: background 0.12s;
+  }
+  .subject-header:first-child { margin-top: 4px; }
+  .subject-header:active { background: var(--surface2); }
+  .subject-header-left { display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0; }
+  .subject-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+  .subject-name { font-size: 15px; font-weight: 800; color: var(--text); display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .subject-board { font-size: 11px; font-weight: 700; color: var(--primary); background: var(--primary-light); padding: 2px 7px; border-radius: 10px; }
+  .subject-meta { font-size: 12px; color: var(--text2); margin-top: 2px; }
+  .subject-chevron { width: 18px; height: 18px; flex-shrink: 0; transition: transform 0.2s; }
+  .subject-chevron.collapsed { transform: rotate(-90deg); }
+  .subject-sets { padding-left: 4px; }
+
   /* ── STREAK CARD ── */
   .streak-card {
     background: linear-gradient(135deg, #3949AB, #5C6BC0);
@@ -530,9 +549,14 @@
       <div class="topbar-title">FlipStudy 📚</div>
       <div class="topbar-sub">Your revision sets</div>
     </div>
-    <button class="icon-btn" onclick="openImportModal()" title="Import cards">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-    </button>
+    <div style="display:flex;gap:8px">
+      <button class="icon-btn" onclick="openNewSubjectModal()" title="New subject">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><line x1="12" y1="8" x2="12" y2="14"/><line x1="9" y1="11" x2="15" y2="11"/></svg>
+      </button>
+      <button class="icon-btn" onclick="openImportModal()" title="Import cards">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      </button>
+    </div>
   </div>
   <div class="content" id="home-content">
     <!-- populated by JS -->
@@ -1027,7 +1051,11 @@
     <div class="modal-handle"></div>
     <div class="modal-title" id="modal-set-title">New set</div>
     <label>Set name</label>
-    <input type="text" id="set-name-input" placeholder="e.g. Biology — Cell Structure" maxlength="60">
+    <input type="text" id="set-name-input" placeholder="e.g. Cell Structure" maxlength="60">
+    <label>Subject</label>
+    <select id="set-subject-input" style="margin-bottom:16px">
+      <option value="">No subject</option>
+    </select>
     <label>School year</label>
     <select id="set-year-input" style="margin-bottom:16px">
       <option value="">Not set</option>
@@ -1045,6 +1073,33 @@
     <div class="color-row" id="color-picker"></div>
     <button class="btn btn-primary" onclick="saveSet()">Save set</button>
     <button class="btn btn-ghost" onclick="closeModal('modal-set')">Cancel</button>
+  </div>
+</div>
+
+<!-- New/Edit Subject Modal -->
+<div class="modal-backdrop" id="modal-subject">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="modal-subject-title">New subject</div>
+    <label>Subject name</label>
+    <input type="text" id="subject-name-input" placeholder="e.g. Biology" maxlength="60">
+    <label>Exam board</label>
+    <select id="subject-board-input" style="margin-bottom:16px">
+      <option value="">Not set</option>
+      <option value="AQA">AQA</option>
+      <option value="Edexcel">Edexcel</option>
+      <option value="OCR">OCR</option>
+      <option value="WJEC">WJEC</option>
+      <option value="CIE">CIE</option>
+      <option value="SQA">SQA</option>
+      <option value="CCEA">CCEA</option>
+      <option value="Other">Other</option>
+    </select>
+    <button class="btn btn-primary" onclick="saveSubject()">Save subject</button>
+    <button class="btn btn-ghost" onclick="closeModal('modal-subject')">Cancel</button>
+    <div id="delete-subject-btn-wrap" style="display:none;margin-top:8px">
+      <button class="btn btn-danger" onclick="deleteSubject()">Delete subject</button>
+    </div>
   </div>
 </div>
 
@@ -1108,18 +1163,20 @@
 const STORAGE_KEY = 'flipstudy_data';
 const SETTINGS_KEY = 'flipstudy_settings';
 
-let data = { sets: [] };
-let settings = { shuffleDefault: false, showTermFirst: true, ttsEnabled: true, voiceEn: '', voiceFr: '', ttsSpeed: 0.9, apiKey: '', autoUpdate: true, lastSeenVersion: '', defaultYear: '10' };
+let data = { sets: [], subjects: [] };
+let settings = { shuffleDefault: false, showTermFirst: true, ttsEnabled: true, voiceEn: '', voiceFr: '', ttsSpeed: 0.9, apiKey: '', autoUpdate: true, lastSeenVersion: '', defaultYear: '10', collapsedSubjects: {} };
 
 function load() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) data = JSON.parse(raw);
     if (!data.sets) data.sets = [];
+    if (!data.subjects) data.subjects = [];
     if (!data.streak) data.streak = { current: 0, best: 0, lastStudied: null };
     const sraw = localStorage.getItem(SETTINGS_KEY);
     if (sraw) settings = { ...settings, ...JSON.parse(sraw) };
-  } catch(e) { data = { sets: [], streak: { current: 0, best: 0, lastStudied: null } }; }
+    if (!settings.collapsedSubjects) settings.collapsedSubjects = {};
+  } catch(e) { data = { sets: [], subjects: [], streak: { current: 0, best: 0, lastStudied: null } }; }
 }
 
 // ════════════════════════════════════
@@ -1442,81 +1499,89 @@ function exitStudy(mode) {
 // ════════════════════════════════════
 // HOME RENDER
 // ════════════════════════════════════
+const EXAM_BOARDS = ['AQA', 'Edexcel', 'OCR', 'WJEC', 'CIE', 'SQA', 'CCEA', 'Other'];
+
 function renderHome() {
   const el = document.getElementById('home-content');
   const activeSets = data.sets.filter(s => !s.archived);
   const archivedSets = data.sets.filter(s => s.archived);
   const streak = getStreakInfo();
-
   let html = '';
 
-  // Streak card (only show if ever studied)
+  // Streak card
   if (streak.lastStudied) {
     const today = todayStr();
     const isToday = streak.lastStudied === today;
-    html += `<div class="streak-card">
-      <div class="streak-flame">${streak.current >= 7 ? '🔥' : streak.current >= 3 ? '⚡' : '✨'}</div>
-      <div class="streak-info">
-        <div class="streak-num">${streak.current} day${streak.current !== 1 ? 's' : ''}</div>
-        <div class="streak-label">${isToday ? 'Studied today — keep it up!' : 'Study today to keep your streak!'}</div>
-        <div class="streak-best">Best streak: ${streak.best} day${streak.best !== 1 ? 's' : ''}</div>
-      </div>
-    </div>`;
+    html += '<div class="streak-card">' +
+      '<div class="streak-flame">' + (streak.current >= 7 ? '🔥' : streak.current >= 3 ? '⚡' : '✨') + '</div>' +
+      '<div class="streak-info">' +
+      '<div class="streak-num">' + streak.current + ' day' + (streak.current !== 1 ? 's' : '') + '</div>' +
+      '<div class="streak-label">' + (isToday ? 'Studied today — keep it up!' : 'Study today to keep your streak!') + '</div>' +
+      '<div class="streak-best">Best streak: ' + streak.best + ' day' + (streak.best !== 1 ? 's' : '') + '</div>' +
+      '</div></div>';
   }
 
   if (data.sets.length === 0) {
-    el.innerHTML = html + `<div class="empty-state">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
-      <h3>No sets yet</h3>
-      <p>Tap the + button to create your first revision set</p>
-    </div>`;
+    el.innerHTML = html + '<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg><h3>No sets yet</h3><p>Tap the + button to create your first revision set</p></div>';
     return;
   }
 
   if (activeSets.length === 0) {
-    html += `<div class="empty-state" style="padding:32px 0">
-      <p style="font-size:14px">All your sets are archived.<br>Tap below to view them.</p>
-    </div>`;
+    html += '<div class="empty-state" style="padding:32px 0"><p style="font-size:14px">All your sets are archived.<br>Tap below to view them.</p></div>';
   } else {
-    html += `<div class="section-label">Active sets</div>`;
-    activeSets.forEach(set => { html += renderSetCard(set); });
+    const setsWithSubject = activeSets.filter(s => s.subjectId);
+    const setsWithoutSubject = activeSets.filter(s => !s.subjectId);
+
+    data.subjects.forEach(function(subject) {
+      const subjectSets = setsWithSubject.filter(s => s.subjectId === subject.id);
+      if (subjectSets.length === 0) return;
+      const collapsed = settings.collapsedSubjects[subject.id];
+      const dominantColor = subjectSets[0].color;
+      const totalCards = subjectSets.reduce((sum, s) => sum + s.cards.length, 0);
+      const knownCards = subjectSets.reduce((sum, s) => sum + s.cards.filter(c => c.known).length, 0);
+      const pct = totalCards > 0 ? Math.round((knownCards / totalCards) * 100) : 0;
+      const boardLabel = subject.examBoard ? subject.examBoard : '';
+
+      html += '<div class="subject-header" onclick="toggleSubject(\'' + subject.id + '\')">' +
+        '<div class="subject-header-left">' +
+        '<div class="subject-dot" style="background:' + dominantColor + '"></div>' +
+        '<div><div class="subject-name">' + esc(subject.name) +
+        (boardLabel ? '<span class="subject-board">' + esc(boardLabel) + '</span>' : '') +
+        '</div>' +
+        '<div class="subject-meta">' + subjectSets.length + ' set' + (subjectSets.length !== 1 ? 's' : '') + ' · ' + totalCards + ' cards · ' + pct + '% mastered</div>' +
+        '</div></div>' +
+        '<div style="display:flex;align-items:center;gap:8px">' +
+        '<button class="sm-btn edit-btn" onclick="event.stopPropagation();openEditSubjectModal(\'' + subject.id + '\')" style="width:28px;height:28px;font-size:12px">✏️</button>' +
+        '<svg class="subject-chevron' + (collapsed ? ' collapsed' : '') + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>' +
+        '</div></div>' +
+        '<div class="subject-sets" id="subject-sets-' + subject.id + '" style="' + (collapsed ? 'display:none' : '') + '">' +
+        subjectSets.map(function(set) { return renderSetCard(set); }).join('') +
+        '</div>';
+    });
+
+    if (setsWithoutSubject.length > 0) {
+      if (data.subjects.length > 0) html += '<div class="section-label" style="margin-top:16px">No subject</div>';
+      setsWithoutSubject.forEach(function(set) { html += renderSetCard(set); });
+    }
   }
 
   if (archivedSets.length > 0) {
-    html += `<div class="archive-toggle" onclick="toggleArchiveSection()">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
-      Archived sets (${archivedSets.length})
-      <svg id="archive-chevron" style="margin-left:auto;transition:transform 0.2s" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
-    </div>
-    <div id="archived-list" style="display:none">`;
-    archivedSets.forEach(set => { html += renderSetCard(set); });
-    html += `</div>`;
+    html += '<div class="archive-toggle" onclick="toggleArchiveSection()">' +
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>' +
+      'Archived sets (' + archivedSets.length + ')' +
+      '<svg id="archive-chevron" style="margin-left:auto;transition:transform 0.2s" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>' +
+      '</div><div id="archived-list" style="display:none">';
+    archivedSets.forEach(function(set) { html += renderSetCard(set); });
+    html += '</div>';
   }
 
   el.innerHTML = html;
 }
 
-function renderSetCard(set) {
-  const total = set.cards.length;
-  const known = set.cards.filter(c => c.known).length;
-  const pct = total > 0 ? Math.round((known / total) * 100) : 0;
-  let lastStudied = '';
-  if (set.lastStudied) {
-    const d = new Date(set.lastStudied);
-    const today = new Date(); today.setHours(0,0,0,0);
-    const diff = Math.floor((today - d) / 86400000);
-    lastStudied = diff === 0 ? ' · Studied today' : diff === 1 ? ' · Studied yesterday' : ` · ${diff} days ago`;
-  }
-  const yearBadge = set.year ? `<span style="font-size:11px;font-weight:700;background:${set.color}22;color:${set.color};padding:2px 7px;border-radius:10px;margin-left:6px">Y${set.year}</span>` : '';
-  return `<div class="set-card" onclick="openSet('${set.id}')">
-    <div class="set-icon" style="background:${set.color}22">${set.emoji}</div>
-    <div class="set-info">
-      <div class="set-name" style="display:flex;align-items:center">${esc(set.name)}${yearBadge}</div>
-      <div class="set-meta">${total} card${total !== 1 ? 's' : ''}${total > 0 ? ' · ' + pct + '% mastered' : ''}${lastStudied}</div>
-      ${total > 0 ? `<div class="set-progress"><div class="set-progress-fill" style="width:${pct}%;background:${set.color}"></div></div>` : ''}
-    </div>
-    <svg class="set-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
-  </div>`;
+function toggleSubject(subjectId) {
+  settings.collapsedSubjects[subjectId] = !settings.collapsedSubjects[subjectId];
+  saveSettings();
+  renderHome();
 }
 
 function toggleArchiveSection() {
@@ -1527,9 +1592,6 @@ function toggleArchiveSection() {
   chev.style.transform = open ? 'rotate(180deg)' : '';
 }
 
-function esc(str) {
-  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
 
 // ════════════════════════════════════
 // SET DETAIL
@@ -1551,10 +1613,13 @@ function openSet(id) {
   const known = set.cards.filter(c => c.known).length;
   const pct = total > 0 ? Math.round((known / total) * 100) : 0;
 
+  const subject = set.subjectId ? data.subjects.find(s => s.id === set.subjectId) : null;
+  const subjectLabel = subject ? (subject.name + (subject.examBoard ? ' · ' + subject.examBoard : '')) : '';
+
   let html = `<div class="set-header-card" style="background:${set.color}">
     <div style="font-size:36px;margin-bottom:8px">${set.emoji}</div>
     <h2>${esc(set.name)}</h2>
-    <p>${total} card${total !== 1 ? 's' : ''}${set.archived ? ' · Archived' : ''}</p>
+    <p>${subjectLabel ? esc(subjectLabel) + ' · ' : ''}${total} card${total !== 1 ? 's' : ''}${set.archived ? ' · Archived' : ''}</p>
     <div class="stat-row">
       <div class="stat-pill">✓ ${known} mastered</div>
       <div class="stat-pill">↻ ${total - known} to learn</div>
@@ -1661,6 +1726,12 @@ let selectedEmoji = EMOJIS[0];
 let selectedColor = COLORS[0];
 let editingSetId = null;
 
+function populateSubjectDropdown(selectedId) {
+  const el = document.getElementById('set-subject-input');
+  el.innerHTML = '<option value="">No subject</option>' +
+    data.subjects.map(s => '<option value="' + s.id + '"' + (s.id === selectedId ? ' selected' : '') + '>' + esc(s.name) + (s.examBoard ? ' (' + s.examBoard + ')' : '') + '</option>').join('');
+}
+
 function openNewSetModal() {
   editingSetId = null;
   selectedEmoji = EMOJIS[0];
@@ -1668,6 +1739,7 @@ function openNewSetModal() {
   document.getElementById('set-name-input').value = '';
   document.getElementById('set-year-input').value = settings.defaultYear || '';
   document.getElementById('modal-set-title').textContent = 'New set';
+  populateSubjectDropdown('');
   renderEmojiPicker();
   renderColorPicker();
   document.getElementById('modal-set').classList.add('open');
@@ -1683,6 +1755,7 @@ function openEditSetModal() {
   document.getElementById('set-name-input').value = set.name;
   document.getElementById('set-year-input').value = set.year || '';
   document.getElementById('modal-set-title').textContent = 'Edit set';
+  populateSubjectDropdown(set.subjectId || '');
   renderEmojiPicker();
   renderColorPicker();
   document.getElementById('modal-set').classList.add('open');
@@ -1713,19 +1786,74 @@ function selectColor(c) {
 function saveSet() {
   const name = document.getElementById('set-name-input').value.trim();
   const year = document.getElementById('set-year-input').value;
+  const subjectId = document.getElementById('set-subject-input').value;
   if (!name) { showToast('Please enter a set name'); return; }
   if (editingSetId) {
     const set = getSet(editingSetId);
-    set.name = name; set.emoji = selectedEmoji; set.color = selectedColor; set.year = year;
+    set.name = name; set.emoji = selectedEmoji; set.color = selectedColor; set.year = year; set.subjectId = subjectId || null;
     showToast('Set updated');
   } else {
-    data.sets.unshift({ id: uid(), name, emoji: selectedEmoji, color: selectedColor, year, archived: false, cards: [] });
+    data.sets.unshift({ id: uid(), name, emoji: selectedEmoji, color: selectedColor, year, subjectId: subjectId || null, archived: false, cards: [] });
     showToast('Set created!');
   }
   save();
   closeModal('modal-set');
   if (editingSetId) openSet(editingSetId);
   else renderHome();
+}
+
+// ════════════════════════════════════
+// SUBJECT MODAL
+// ════════════════════════════════════
+let editingSubjectId = null;
+
+function openNewSubjectModal() {
+  editingSubjectId = null;
+  document.getElementById('subject-name-input').value = '';
+  document.getElementById('subject-board-input').value = '';
+  document.getElementById('modal-subject-title').textContent = 'New subject';
+  document.getElementById('delete-subject-btn-wrap').style.display = 'none';
+  document.getElementById('modal-subject').classList.add('open');
+  setTimeout(() => document.getElementById('subject-name-input').focus(), 300);
+}
+
+function openEditSubjectModal(subjectId) {
+  const subject = data.subjects.find(s => s.id === subjectId);
+  if (!subject) return;
+  editingSubjectId = subjectId;
+  document.getElementById('subject-name-input').value = subject.name;
+  document.getElementById('subject-board-input').value = subject.examBoard || '';
+  document.getElementById('modal-subject-title').textContent = 'Edit subject';
+  document.getElementById('delete-subject-btn-wrap').style.display = 'block';
+  document.getElementById('modal-subject').classList.add('open');
+}
+
+function saveSubject() {
+  const name = document.getElementById('subject-name-input').value.trim();
+  const examBoard = document.getElementById('subject-board-input').value;
+  if (!name) { showToast('Please enter a subject name'); return; }
+  if (editingSubjectId) {
+    const subject = data.subjects.find(s => s.id === editingSubjectId);
+    subject.name = name; subject.examBoard = examBoard;
+    showToast('Subject updated');
+  } else {
+    data.subjects.push({ id: uid(), name, examBoard });
+    showToast('Subject created!');
+  }
+  save();
+  closeModal('modal-subject');
+  renderHome();
+}
+
+function deleteSubject() {
+  if (!editingSubjectId) return;
+  // Remove subject from all sets
+  data.sets.forEach(s => { if (s.subjectId === editingSubjectId) s.subjectId = null; });
+  data.subjects = data.subjects.filter(s => s.id !== editingSubjectId);
+  save();
+  closeModal('modal-subject');
+  showToast('Subject deleted');
+  renderHome();
 }
 
 // ════════════════════════════════════
@@ -2456,7 +2584,9 @@ function showAiQuizResults() {
 function buildCardContext(set) {
   const known = set.cards.filter(c => c.known);
   const weak = set.cards.filter(c => !c.known);
-  return 'FLASHCARD SET: "' + set.name + '"\nAll cards (' + set.cards.length + ' total):\n' +
+  const subject = set.subjectId ? data.subjects.find(s => s.id === set.subjectId) : null;
+  const subjectLine = subject ? '\nSubject: ' + subject.name + (subject.examBoard ? ' · Exam board: ' + subject.examBoard : '') : '';
+  return 'FLASHCARD SET: "' + set.name + '"' + subjectLine + '\nAll cards (' + set.cards.length + ' total):\n' +
     set.cards.map(c => '- ' + c.front + ' | ' + c.back).join('\n') +
     '\nMastered (' + known.length + '): ' + (known.map(c => c.front).join(', ') || 'none yet') +
     '\nStill learning (' + weak.length + '): ' + (weak.map(c => c.front).join(', ') || 'none - all mastered!');
@@ -2471,7 +2601,11 @@ function buildYearContext(set) {
 }
 
 function buildSystemPrompt(set, cardContext, yearContext) {
-  return 'You are a focused revision assistant. Your ONLY purpose is to help the student revise the specific flashcard set provided. Do not respond to anything unrelated to this set.\n' + yearContext + '\n' + cardContext;
+  const subject = set.subjectId ? data.subjects.find(s => s.id === set.subjectId) : null;
+  const boardLine = subject && subject.examBoard
+    ? 'The exam board is ' + subject.examBoard + '. Tailor questions and explanations to ' + subject.examBoard + ' style, terminology and mark scheme expectations.'
+    : '';
+  return 'You are a focused revision assistant. Your ONLY purpose is to help the student revise the specific flashcard set provided. Do not respond to anything unrelated to this set.\n' + yearContext + '\n' + (boardLine ? boardLine + '\n' : '') + cardContext;
 }
 
 async function callAI(systemPrompt, userMessage) {
@@ -2580,7 +2714,7 @@ function saveApiKey() {
 // ════════════════════════════════════
 // UPDATE & CHANGELOG
 // ════════════════════════════════════
-const APP_VERSION = '1.8';
+const APP_VERSION = '1.9';
 const CHANGELOG_URL = 'https://raw.githubusercontent.com/flipstudy/flipstudy/main/changelog.json';
 const WORKER_URL = 'https://flipstudy-proxy.maine-1bd.workers.dev';
 
