@@ -1,4 +1,4 @@
-const CACHE = 'flipstudy-v1.7b';
+const CACHE = 'flipstudy-v1.7c';
 const ASSETS = [
   '/',
   '/flipstudy/',
