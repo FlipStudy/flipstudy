@@ -768,12 +768,11 @@
     <div class="section-label">AI Revision Assistant</div>
     <div class="settings-item" style="flex-direction:column;align-items:stretch;gap:10px;cursor:default">
       <div>
-        <div class="settings-item-label">🤖 Anthropic API key</div>
-        <div class="settings-item-sub">Enter your own key to enable AI-powered revision features. Open an account at <a href="https://console.anthropic.com" target="_blank" style="color:var(--primary);font-weight:700">console.anthropic.com</a> and select a plan to suit your study needs. Your key is stored only on this device.</div>
+        <div class="settings-item-label">🤖 AI password</div>
+        <div class="settings-item-sub">Enter the password to unlock AI-powered revision features.</div>
       </div>
       <div style="display:flex;gap:8px">
-        <input type="password" id="api-key-input" placeholder="sk-ant-..." style="flex:1;margin-bottom:0;font-size:13px"
-          oninput="onApiKeyInput()">
+        <input type="password" id="api-key-input" placeholder="Enter password…" style="flex:1;margin-bottom:0;font-size:13px">
         <button onclick="saveApiKey()" id="api-key-save-btn"
           style="padding:0 14px;background:var(--primary);color:white;border:none;border-radius:var(--radius-sm);font-family:var(--font);font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap">
           Save
@@ -2058,8 +2057,8 @@ function renderSettings() {
   const apiStatus = document.getElementById('api-key-status');
   if (apiInput) {
     if (settings.apiKey) {
-      apiInput.value = '••••••••••••' + settings.apiKey.slice(-4);
-      apiStatus.textContent = '✓ API key saved — AI Revision Assistant is enabled';
+      apiInput.value = '••••••••';
+      apiStatus.textContent = '✓ Password saved — AI Revision Assistant is enabled';
       apiStatus.style.color = 'var(--success)';
     } else {
       apiInput.value = '';
@@ -2268,14 +2267,15 @@ Behaviour guidelines:
   aiIsLoading = true;
 
   try {
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
+    const response = await fetch(WORKER_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
+        password: settings.apiKey,
         model: 'claude-sonnet-4-20250514',
         max_tokens: 1000,
         system: systemPrompt,
-        messages: aiChatHistory.slice(-10) // last 10 turns for context
+        messages: aiChatHistory.slice(-10)
       })
     });
 
@@ -2285,9 +2285,11 @@ Behaviour guidelines:
     if (!response.ok) {
       const err = await response.json().catch(() => ({}));
       if (response.status === 401) {
-        addAiMessage('assistant', '❌ Invalid API key. Please check your key in Settings.');
+        addAiMessage('assistant', '❌ Incorrect password. Please check the password in Settings.');
       } else if (response.status === 429) {
         addAiMessage('assistant', '⏳ Too many requests — please wait a moment and try again.');
+      } else if (response.status === 403) {
+        addAiMessage('assistant', '❌ Access denied. Please contact the app administrator.');
       } else {
         addAiMessage('assistant', `❌ Something went wrong (${response.status}). Please try again.`);
       }
@@ -2322,7 +2324,6 @@ function addAiMessage(role, text) {
 // API KEY MANAGEMENT
 // ════════════════════════════════════
 function onApiKeyInput() {
-  const val = document.getElementById('api-key-input').value.trim();
   document.getElementById('api-key-status').textContent = '';
 }
 
@@ -2331,20 +2332,15 @@ function saveApiKey() {
   if (!val) {
     settings.apiKey = '';
     saveSettings();
-    document.getElementById('api-key-status').textContent = 'API key removed.';
+    document.getElementById('api-key-status').textContent = 'Password removed — AI features disabled.';
     document.getElementById('api-key-status').style.color = 'var(--text3)';
-    return;
-  }
-  if (!val.startsWith('sk-ant-')) {
-    document.getElementById('api-key-status').textContent = '⚠️ That doesn\'t look like an Anthropic key — it should start with sk-ant-';
-    document.getElementById('api-key-status').style.color = 'var(--warning)';
     return;
   }
   settings.apiKey = val;
   saveSettings();
-  document.getElementById('api-key-status').textContent = '✓ Key saved — AI Revision Assistant is now enabled!';
+  document.getElementById('api-key-status').textContent = '✓ Password saved — AI Revision Assistant is now enabled!';
   document.getElementById('api-key-status').style.color = 'var(--success)';
-  document.getElementById('api-key-input').value = '••••••••••••' + val.slice(-4);
+  document.getElementById('api-key-input').value = '••••••••';
 }
 
 // ════════════════════════════════════
@@ -2352,6 +2348,7 @@ function saveApiKey() {
 // ════════════════════════════════════
 const APP_VERSION = '1.7';
 const CHANGELOG_URL = 'https://raw.githubusercontent.com/flipstudy/flipstudy/main/changelog.json';
+const WORKER_URL = 'https://flipstudy-proxy.maine-1bd.workers.dev'; // ← update this after deploying Worker
 
 let changelogData = null;
 
