@@ -534,6 +534,40 @@
   .toast.show { opacity: 1; }
 
   .confetti-wrap { position: fixed; inset: 0; pointer-events: none; z-index: 300; }
+
+  /* ── AI VIEW LAYOUT HELPERS (replaces heavy inline styles) ── */
+  .ai-view-bar {
+    padding: 10px 16px; border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .ai-view-label { font-size: 14px; font-weight: 700; color: var(--text2); }
+  .ai-back-link {
+    background: none; border: none; font-family: var(--font);
+    font-size: 13px; font-weight: 700; color: var(--primary); cursor: pointer;
+  }
+  .ai-preview-header {
+    padding: 16px 16px 8px; border-bottom: 1px solid var(--border);
+  }
+  .ai-preview-title { font-size: 17px; font-weight: 800; color: var(--text); }
+  .ai-preview-subtitle { font-size: 13px; color: var(--text2); margin-top: 2px; }
+  .ai-preview-footer {
+    padding: 12px 16px 24px; border-top: 1px solid var(--border);
+    display: flex; flex-direction: column; gap: 8px; background: var(--surface);
+  }
+  .ai-chat-input-row {
+    padding: 10px 12px 24px; border-top: 1px solid var(--border);
+    display: flex; gap: 8px; align-items: flex-end; background: var(--surface);
+  }
+  .ai-send-btn {
+    width: 40px; height: 40px; border-radius: 12px; background: var(--primary);
+    border: none; cursor: pointer; display: flex; align-items: center;
+    justify-content: center; flex-shrink: 0;
+  }
+  .ai-loading-view {
+    flex: 1; align-items: center; justify-content: center;
+    flex-direction: column; gap: 16px;
+  }
+  .ai-loading-label { font-size: 15px; font-weight: 600; color: var(--text2); }
 </style>
 </head>
 <body>
@@ -817,7 +851,7 @@
     <div class="settings-item" style="flex-direction:column;align-items:stretch;gap:10px;cursor:default">
       <div>
         <div class="settings-item-label">🤖 AI password</div>
-        <div class="settings-item-sub">Enter the password to unlock AI-powered revision features.</div>
+        <div class="settings-item-sub">Enter the password to unlock AI-powered revision features. Stored locally on this device only.</div>
       </div>
       <div style="display:flex;gap:8px">
         <input type="password" id="api-key-input" placeholder="Enter password…" style="flex:1;margin-bottom:0;font-size:13px">
@@ -836,6 +870,13 @@
         <div class="settings-item-sub" id="settings-streak-info">Loading...</div>
       </div>
       <span style="font-size:24px">🔥</span>
+    </div>
+    <div class="settings-item" onclick="confirmResetStreak()">
+      <div>
+        <div class="settings-item-label">Reset streak</div>
+        <div class="settings-item-sub">Set your streak back to zero</div>
+      </div>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--danger)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
     </div>
 
     <div class="section-label">Data</div>
@@ -956,21 +997,21 @@
   </div>
 
   <!-- Loading view -->
-  <div id="ai-loading-view" style="display:none;flex:1;align-items:center;justify-content:center;flex-direction:column;gap:16px">
+  <div id="ai-loading-view" style="display:none" class="ai-loading-view">
     <div class="ai-typing" style="align-self:center">
       <span></span><span></span><span></span>
     </div>
-    <div style="font-size:15px;font-weight:600;color:var(--text2)" id="ai-loading-label">Generating…</div>
+    <div class="ai-loading-label" id="ai-loading-label">Generating…</div>
   </div>
 
   <!-- Card preview view -->
   <div id="ai-preview-view" style="display:none;flex-direction:column;flex:1;overflow:hidden">
-    <div style="padding:16px 16px 8px;border-bottom:1px solid var(--border)">
-      <div style="font-size:17px;font-weight:800;color:var(--text)" id="ai-preview-title"></div>
-      <div style="font-size:13px;color:var(--text2);margin-top:2px" id="ai-preview-sub"></div>
+    <div class="ai-preview-header">
+      <div class="ai-preview-title" id="ai-preview-title"></div>
+      <div class="ai-preview-subtitle" id="ai-preview-sub"></div>
     </div>
     <div id="ai-preview-list" style="flex:1;overflow-y:auto;padding:12px 16px"></div>
-    <div style="padding:12px 16px 24px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:8px;background:var(--surface)">
+    <div class="ai-preview-footer">
       <button class="btn btn-primary" id="ai-add-this-set">Add to this set</button>
       <button class="btn btn-ghost" onclick="aiSaveAsNewSet()">Save as new set</button>
       <button class="btn btn-ghost" onclick="showAiHome()">← Back</button>
@@ -979,18 +1020,17 @@
 
   <!-- Chat view (explain / tips only) -->
   <div id="ai-chat-view" style="display:none;flex-direction:column;flex:1;overflow:hidden">
-    <div style="padding:10px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
-      <div style="font-size:14px;font-weight:700;color:var(--text2)" id="ai-chat-label"></div>
-      <button onclick="showAiHome()" style="background:none;border:none;font-family:var(--font);font-size:13px;font-weight:700;color:var(--primary);cursor:pointer">← Back</button>
+    <div class="ai-view-bar">
+      <div class="ai-view-label" id="ai-chat-label"></div>
+      <button onclick="showAiHome()" class="ai-back-link">← Back</button>
     </div>
     <div id="ai-messages" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px"></div>
-    <div style="padding:10px 12px 24px;border-top:1px solid var(--border);display:flex;gap:8px;align-items:flex-end;background:var(--surface)">
+    <div class="ai-chat-input-row">
       <textarea id="ai-input" placeholder="Ask a follow-up question…" maxlength="500"
         style="flex:1;min-height:40px;max-height:120px;resize:none;border:1.5px solid var(--border);border-radius:12px;padding:10px 12px;font-family:var(--font);font-size:14px;color:var(--text);outline:none;background:var(--bg);margin-bottom:0"
         onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendAiMessage()}"
         oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"></textarea>
-      <button onclick="sendAiMessage()"
-        style="width:40px;height:40px;border-radius:12px;background:var(--primary);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+      <button onclick="sendAiMessage()" class="ai-send-btn">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
       </button>
     </div>
@@ -998,12 +1038,23 @@
 
   <!-- AI Quiz view -->
   <div id="ai-quiz-view" style="display:none;flex-direction:column;flex:1;overflow:hidden">
-    <div style="padding:10px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
-      <div style="font-size:14px;font-weight:700;color:var(--text2)" id="ai-quiz-counter"></div>
-      <button onclick="showAiHome()" style="background:none;border:none;font-family:var(--font);font-size:13px;font-weight:700;color:var(--primary);cursor:pointer">Exit quiz</button>
+    <div class="ai-view-bar">
+      <div class="ai-view-label" id="ai-quiz-counter"></div>
+      <button onclick="showAiHome()" class="ai-back-link">Exit quiz</button>
     </div>
     <div class="study-progress-bar"><div class="study-progress-fill" id="ai-quiz-progress" style="width:0%"></div></div>
     <div class="content" id="ai-quiz-content"></div>
+  </div>
+</div>
+
+<!-- Exit App Confirm Modal -->
+<div class="modal-backdrop" id="modal-exit">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Exit FlipStudy?</div>
+    <p style="color:var(--text2);font-size:15px;margin-bottom:24px;line-height:1.6">Are you sure you want to leave the app?</p>
+    <button class="btn btn-danger" onclick="window.history.go(-1); closeModal('modal-exit')">Exit</button>
+    <button class="btn btn-ghost" onclick="closeModal('modal-exit')">Stay</button>
   </div>
 </div>
 
@@ -1195,17 +1246,20 @@ function recordStudySession() {
   save();
 }
 
-function getStreakInfo() {
-  if (!data.streak) return { current: 0, best: 0, lastStudied: null };
-  // Check if streak is still alive (studied today or yesterday)
+function checkStreakExpiry() {
+  if (!data.streak) return;
   const today = todayStr();
   const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
   const last = data.streak.lastStudied;
   if (last !== today && last !== yesterday && last !== null) {
-    // Streak broken
     data.streak.current = 0;
     save();
   }
+}
+
+function getStreakInfo() {
+  if (!data.streak) return { current: 0, best: 0, lastStudied: null };
+  checkStreakExpiry();
   return data.streak;
 }
 
@@ -1480,6 +1534,7 @@ function showStudyScreen(name) {
   document.querySelectorAll('.screen, .study-screen').forEach(s => s.classList.remove('active'));
   document.getElementById('screen-' + name).classList.add('active');
   document.getElementById('main-nav').style.display = 'none';
+  pushNavState({ page: 'study', mode: name });
 }
 
 function exitStudy(mode) {
@@ -1624,6 +1679,7 @@ function openSet(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById('screen-set').classList.add('active');
   document.getElementById('main-nav').style.display = 'flex';
+  pushNavState({ page: 'set', id });
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
 
   const archBtn = document.getElementById('archive-btn');
@@ -1730,6 +1786,15 @@ function toggleArchiveCurrentSet() {
   save();
   showToast(set.archived ? 'Set archived' : 'Set unarchived');
   openSet(currentSetId);
+}
+
+function confirmResetStreak() {
+  if (!confirm('Reset your streak to zero? This cannot be undone.')) return;
+  data.streak = { current: 0, best: data.streak ? data.streak.best : 0, lastStudied: null };
+  save();
+  showToast('Streak reset');
+  renderSettings();
+  renderHome();
 }
 
 function confirmResetProgress() {
@@ -2120,6 +2185,7 @@ let quizQuestions = [], quizIndex = 0, quizScore = 0, quizAnswered = false;
 
 function startQuiz() {
   const set = getSet(currentSetId);
+  if (set.cards.length < 2) { showToast('Add at least 2 cards to use Quiz mode'); return; }
   quizQuestions = shuffle([...set.cards]);
   quizIndex = 0; quizScore = 0;
   recordStudySession();
@@ -2135,7 +2201,10 @@ function renderQuizQ() {
   const card = quizQuestions[quizIndex];
   const set = getSet(currentSetId);
   const others = set.cards.filter(c => c.id !== card.id);
-  const wrongs = shuffle(others).slice(0, 3).map(c => settings.showTermFirst ? c.back : c.front);
+  let wrongPool = shuffle(others).map(c => settings.showTermFirst ? c.back : c.front);
+  const placeholders = ['—', '– –', '···'];
+  while (wrongPool.length < 3) wrongPool.push(placeholders[wrongPool.length]);
+  const wrongs = wrongPool.slice(0, 3);
   const correct = settings.showTermFirst ? card.back : card.front;
   const question = settings.showTermFirst ? card.front : card.back;
   const options = shuffle([correct, ...wrongs]);
@@ -2161,7 +2230,7 @@ function selectQuizOpt(btn, selected, correct) {
   quizAnswered = true;
   const opts = document.querySelectorAll('.quiz-opt');
   opts.forEach(o => {
-    if (o.textContent === esc(correct) || o.textContent === correct) o.classList.add('correct');
+    if (o.textContent === correct) o.classList.add('correct');
   });
   if (selected === correct) { btn.classList.add('correct'); quizScore++; }
   else btn.classList.add('wrong');
@@ -2277,6 +2346,7 @@ function showResults(title, score, total, mode) {
 function restart_flashcard() { startFlashcards(); }
 function restart_learn() { startLearn(); }
 function restart_quiz() { startQuiz(); }
+function restart_match() { startMatch(); }
 
 // ════════════════════════════════════
 // SETTINGS
@@ -2350,12 +2420,29 @@ function importBackup(event) {
   reader.onload = e => {
     try {
       const imported = JSON.parse(e.target.result);
-      if (!imported.sets) throw new Error('Invalid file');
+      if (!imported.sets || !Array.isArray(imported.sets)) throw new Error('Invalid file');
+      // Normalise old backups that predate subjects, streak, etc.
+      if (!imported.subjects || !Array.isArray(imported.subjects)) imported.subjects = [];
+      if (!imported.streak) imported.streak = { current: 0, best: 0, lastStudied: null };
+      // Normalise each set and its cards
+      const SAFE_COLOR = /^#[0-9A-Fa-f]{6}$/;
+      imported.sets.forEach(s => {
+        if (!s.id) s.id = uid();
+        if (!Array.isArray(s.cards)) s.cards = [];
+        if (s.archived === undefined) s.archived = false;
+        if (!s.emoji) s.emoji = '📚';
+        // Validate colour is a safe hex value to prevent CSS injection
+        if (!s.color || !SAFE_COLOR.test(s.color)) s.color = '#5C6BC0';
+        s.cards.forEach(c => {
+          if (!c.id) c.id = uid();
+          if (c.known === undefined) c.known = false;
+        });
+      });
       data = imported;
       save();
-      showToast(`Imported ${data.sets.length} sets`);
+      showToast(`Imported ${data.sets.length} set${data.sets.length !== 1 ? 's' : ''}`);
       renderHome();
-    } catch(err) { showToast('Invalid backup file'); }
+    } catch(err) { showToast('Invalid backup file — could not import'); }
   };
   reader.readAsText(file);
   event.target.value = '';
@@ -2364,6 +2451,10 @@ function importBackup(event) {
 // ════════════════════════════════════
 // HELPERS
 // ════════════════════════════════════
+function showExitConfirm() {
+  document.getElementById('modal-exit').classList.add('open');
+}
+
 function closeModal(id) {
   document.getElementById(id).classList.remove('open');
   // Stop dictation if card modal is closed
@@ -2407,9 +2498,12 @@ function confetti() {
       animation:fall ${1.5+Math.random()}s ease-in ${Math.random()*0.8}s forwards;opacity:0.9`;
     wrap.appendChild(p);
   }
-  const style = document.createElement('style');
-  style.textContent = '@keyframes fall{to{transform:translateY(100dvh) rotate(720deg);opacity:0}}';
-  document.head.appendChild(style);
+  if (!document.getElementById('confetti-style')) {
+    const style = document.createElement('style');
+    style.id = 'confetti-style';
+    style.textContent = '@keyframes fall{to{transform:translateY(100dvh) rotate(720deg);opacity:0}}';
+    document.head.appendChild(style);
+  }
   setTimeout(() => { wrap.remove(); }, 3000);
 }
 
@@ -2524,15 +2618,10 @@ async function aiAction(action) {
   const cardContext = buildCardContext(set);
   const yearContext = buildYearContext(set);
 
-  if (action === 'explain' || action === 'tips') {
-    const labels = { explain: 'Explain a card', tips: 'Revision tips' };
-    showAiChat(labels[action]);
+  if (action === 'tips') {
+    showAiChat('🎯 Revision tips');
     aiChatHistory = [];
-    const prompts = {
-      explain: 'Pick one of the cards from my set that might be tricky to understand and explain it in a simpler way, with a real-world example and a memory trick to help it stick.',
-      tips: 'Give me 3 specific, practical revision tips for this topic based on my card set. Keep them concise and actionable.'
-    };
-    await sendAiChatMessage(prompts[action], cardContext, yearContext);
+    await sendAiChatMessage('Give me 3 specific, practical revision tips for this topic based on my card set. Keep them concise and actionable.', cardContext, yearContext);
     return;
   }
 
@@ -2763,7 +2852,13 @@ async function fetchChangelog() {
       cache: 'no-store'
     });
     if (res.ok) {
-      changelogData = await res.json();
+      const cl = await res.json();
+      // Validate schema before trusting it
+      if (!cl || !cl.latest || !Array.isArray(cl.versions) || cl.versions.length === 0) {
+        console.warn('Changelog response had unexpected structure');
+        return null;
+      }
+      changelogData = cl;
       return changelogData;
     }
   } catch(e) {
@@ -2895,18 +2990,7 @@ function pushNavState(state) {
   history.pushState(state, '');
 }
 
-// Override navigation functions to push history states
-const _origOpenSet = openSet;
-openSet = function(id) {
-  _origOpenSet(id);
-  pushNavState({ page: 'set', id });
-};
-
-const _origShowStudyScreen = showStudyScreen;
-showStudyScreen = function(name) {
-  _origShowStudyScreen(name);
-  pushNavState({ page: 'study', mode: name });
-};
+// Navigation wrappers — state pushing is now integrated directly into openSet and showStudyScreen
 
 window.addEventListener('popstate', function(e) {
   const state = e.state;
@@ -2941,9 +3025,8 @@ window.addEventListener('popstate', function(e) {
     if ('speechSynthesis' in window) window.speechSynthesis.cancel();
     document.querySelectorAll('.study-screen').forEach(s => s.classList.remove('active'));
     document.getElementById('main-nav').style.display = 'flex';
-    if (currentSetId) _origOpenSet(currentSetId);
+    if (currentSetId) openSet(currentSetId);
     else goHome();
-    pushNavState({ page: 'set', id: currentSetId });
     return;
   }
 
@@ -2963,7 +3046,14 @@ window.addEventListener('popstate', function(e) {
     return;
   }
 
-  // Already on home — let the browser handle it (exits app)
+  // Already on home — show exit confirmation
+  const homeScreen = document.getElementById('screen-home');
+  if (homeScreen && homeScreen.classList.contains('active')) {
+    // Re-push so popstate fires again if they cancel
+    pushNavState({ page: 'home' });
+    showExitConfirm();
+    return;
+  }
 });
 
 // Push initial state on load
@@ -2982,7 +3072,7 @@ setTimeout(checkUpdatesOnLoad, 2000);
 // Register service worker — always fetch sw.js fresh to pick up updates
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('sw.js?v=1.7b', { updateViaCache: 'none' })
+    navigator.serviceWorker.register('sw.js?v=2.0', { updateViaCache: 'none' })
       .then(reg => {
         // Check for updates immediately and every 60 seconds
         reg.update();
