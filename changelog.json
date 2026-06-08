@@ -6,107 +6,25 @@
       "date": "2026-06-07",
       "title": "Explain Cards & Back Button",
       "changes": [
-        "New \ud83d\udca1 explain button on each card \u2014 tap to get an AI explanation of that specific card with examples and memory tips",
-        "Android back button now navigates through the app \u2014 back from study mode returns to the set, back from a set returns home, back closes modals",
-        "Removed generic Explain a card from AI assistant menu \u2014 per-card explanations are now more useful"
-      ]
-    },
-    {
-      "version": "1.9",
-      "date": "2026-06-07",
-      "title": "Subjects & Exam Boards",
-      "changes": [
-        "Create subjects with an exam board (AQA, Edexcel, OCR, WJEC, CIE, SQA, CCEA)",
-        "Card sets are grouped under their subject on the home screen",
-        "Subject groups are collapsible \u2014 tap to expand or collapse, view is saved",
-        "Each subject shows total cards, sets, and overall mastery progress",
-        "AI Revision Assistant now knows the subject and exam board \u2014 tailors questions and explanations to the specific board style and mark scheme",
-        "Subject and exam board shown on the set detail screen"
-      ]
-    },
-    {
-      "version": "1.8",
-      "date": "2026-06-07",
-      "title": "Redesigned AI Revision Assistant",
-      "changes": [
-        "AI assistant now creates real flashcards \u2014 no more chat interface for card generation",
-        "Generate questions, Focus on weak cards and Find gaps produce cards you can add to your set or save as new",
-        "New AI Quiz mode generates brand new questions in the familiar quiz format",
-        "Explain a card and Revision tips remain as a chat interface"
-      ]
-    },
-    {
-      "version": "1.7",
-      "date": "2026-06-06",
-      "title": "School Year & Changelog Improvements",
-      "changes": [
-        "Set a school year (Y7-Y13) per card set, shown as a badge on the home screen",
-        "Default school year setting in Settings",
-        "AI tailors language and difficulty to the school year",
-        "Changelog now shows only the latest version with option to expand full history"
-      ]
-    },
-    {
-      "version": "1.6",
-      "date": "2026-06-03",
-      "title": "Updates & Changelog",
-      "changes": [
-        "Automatic and manual update settings",
-        "Changelog popup shows what changed after an update"
-      ]
-    },
-    {
-      "version": "1.5",
-      "date": "2026-06-03",
-      "title": "AI Safety & Polish",
-      "changes": [
-        "AI Revision Assistant stays focused on the current card set only",
-        "Added message length limit to AI chat input"
-      ]
-    },
-    {
-      "version": "1.4",
-      "date": "2026-06-03",
-      "title": "AI Revision Assistant",
-      "changes": [
-        "AI Revision Assistant powered by Claude via secure Cloudflare proxy",
-        "Password-protected access \u2014 your API key stays secure on the server"
-      ]
-    },
-    {
-      "version": "1.3",
-      "date": "2026-06-03",
-      "title": "Dictation",
-      "changes": [
-        "Microphone button on card editor \u2014 speak your term or definition instead of typing"
-      ]
-    },
-    {
-      "version": "1.2",
-      "date": "2026-06-03",
-      "title": "Voice Picker & French Support",
-      "changes": [
-        "Automatic French language detection",
-        "Voice picker and speed control in Settings"
-      ]
-    },
-    {
-      "version": "1.1",
-      "date": "2026-06-03",
-      "title": "Streaks & Text-to-Speech",
-      "changes": [
-        "Study streak counter on home screen",
-        "Text-to-speech with speaker button on cards"
+        "New 💡 explain button on each card — tap to get an AI explanation of that specific card with examples and memory tips",
+        "Android back button now navigates through the app — back from study mode returns to the set, back from a set returns home, back on home asks if you want to exit",
+        "Removed generic Explain a card from AI assistant menu — per-card explanations are now more useful"
       ]
     },
     {
       "version": "1.0",
       "date": "2026-06-03",
-      "title": "Initial Release",
+      "title": "Version 1 — Full Feature Release",
       "changes": [
         "Flashcard, Learn, Quiz and Match study modes",
         "Progress tracking, import, backup and restore",
-        "Offline support, no ads, no account required"
+        "Offline support via service worker — no ads, no account required",
+        "Study streak counter and text-to-speech with automatic French voice detection",
+        "Dictation — speak your term or definition instead of typing",
+        "AI Revision Assistant powered by Claude — generate questions, focus on weak cards, find gaps, quiz mode, and per-card explanations",
+        "Subjects with exam board support (AQA, Edexcel, OCR, WJEC, CIE, SQA, CCEA) — sets grouped and collapsible on home screen",
+        "School year per set — AI tailors language and difficulty accordingly",
+        "Automatic and manual update settings with changelog popup"
       ]
     }
   ]
